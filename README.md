@@ -1,8 +1,8 @@
-# programming_coursework 
+# Programming Coursework 
 
-**The goal of the coursework is to design a game called NottyGame, which is a card game for 2-3 people players.**
+**The goal of the coursework is to design a game called NottyGame, which is a card game for 2-3 players.**
 
----
+
 
 ## Branch Management Guidences:
 
