@@ -1,12 +1,16 @@
-from notty_game import App
+from notty_game import NottyGame
+from gui import NottyGUI
 
 def main():
 
-    # initial app
-    app = App()
+    # initial App
+    nottygame = NottyGame()
+
+    # initial NottyGUI
+    gui = NottyGUI(nottygame)
 
     # run the app
-    app.run()
+    gui.run()
 
 if __name__ == "__main__":
     main()
