@@ -26,9 +26,10 @@ class NottyGame:
     def __init__(self):
         '''initilize all the settings for the game'''
         self.action_queue = queue.Queue()
+        self.render_queue = queue.Queue()
         self.game_thread = None
         self.running = False
-        self.callback = None
+        # self.callback = None
         self.game_status = {}
 
     def setup(self, player_count: int, player_name: list , computer_level: str):
@@ -44,8 +45,8 @@ class NottyGame:
 
         print(player_count, player_name, computer_level)
 
-    def register_callback(self, func):
-        self.callback = func
+    # def register_callback(self, func):
+    #     self.callback = func
 
     def receive_action(self, action: GameActions, action_info = None):
         self.action_queue.put(action)
@@ -95,7 +96,8 @@ class NottyGame:
 
                 self.update_status()
 
-                self.callback(copy.deepcopy(self.game_status))
+                # self.callback(copy.deepcopy(self.game_status))
+                self.render_queue.put(copy.deepcopy(self.game_status))
 
             except queue.Empty:
                 continue
