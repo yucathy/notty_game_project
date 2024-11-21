@@ -1,15 +1,22 @@
 from enum import Enum
-from gui import NottyGUI
+from Card import Card
 from deck import Deck
-from players import Players
+from players import Players, AIPlayer
 import threading
 import queue
 import copy
+import random
+import string
 
 class NottyGame:
     '''
     manage the game.
     '''
+
+    max_draw_times_per_turn = 3
+    max_steal_times_per_turn = 1
+    user_id = 0
+
     class ComputerLevel(Enum):
         EASY = 'easy'
         MEDIUM = 'medium'
@@ -31,7 +38,20 @@ class NottyGame:
         self.running = False
         # self.callback = None
         self.game_status = {}
+        self.players = []
+        self.deck = Deck()
+        self.turn_count = 0
+        self.draw_times = 0
+        self.old_turn_count = 0
+        self.steal_times = 0
+        self.player_name = []
+        self.winner = None
 
+        self.excluded_action1 = self.GameActions.DEAL
+        self.excluded_action2 = self.GameActions.PLAY_FOR_ME
+        self.ai_actions_pool = [action for action in self.GameActions \
+                        if action != self.excluded_action1 and action != self.excluded_action2]
+        
     def setup(self, player_count: int, player_name: list , computer_level: str):
         '''
         info is a list about the setup for the card game.
@@ -43,13 +63,24 @@ class NottyGame:
         assert type(player_name) != 'list', "player_name type should be a list."
         assert type(computer_level) != 'str', "computer_level type should be str."
 
+        for i in range(player_count):
+            name = f'player {i}'
+            self.player_name.append(name)
+            if i == 0:
+                self.players.append(Players(name))
+            else:
+                self.players.append(AIPlayer(name))
+
         print(player_count, player_name, computer_level)
 
     # def register_callback(self, func):
     #     self.callback = func
 
-    def receive_action(self, action: GameActions, action_info = None):
-        self.action_queue.put(action)
+    def create_card(self, colour: str, number: int) -> Card:
+        return Card(colour, number)
+
+    def receive_action(self, action: GameActions, action_user_id: int = None, action_info = None):
+        self.action_queue.put([action, action_user_id, action_info])
 
     def start_game(self):
         self.running = True
@@ -62,39 +93,93 @@ class NottyGame:
         if self.game_thread:
             self.game_thread.join()
 
-    def update_status(self):
-        self.game_status["deck"] = []
-        self.game_status["players"] = [
-            {"name": "realplayer", "handset": [], "add": [], "delete": [], "active": True},
-            {"name": "computerplayer1", "handset": [], "add": [], "delete": [], "active": False},
-        ]
-        self.game_status["type"] = self.GameActions.DISCARD
-        self.game_status["action_success"] = True
-        self.game_status["turns_count"] = 1
-        self.game_status["winner"] = None
+    def update_status(self, user_action, action_success, active_status, next_player):
+        self.game_status["deck"] = self.deck.cards
+        self.game_status["type"] = user_action
+        self.game_status["action_success"] = action_success
+        self.game_status["turns_count"] = self.turn_count
+        self.game_status["winner"] = self.winner
+        player_list = []
+        for player, active in zip(self.players, active_status):
+            player_list.append({"name": player.name, "handset": player.hand, "active": active})
+
+        self.game_status["players"] = player_list
+        self.game_status['next_player'] = next_player
 
     def process_turns(self):
         while self.running:
             try:
                 # get user action
-                user_action = self.action_queue.get(timeout=1)
-                print(user_action)
+                user_action_with_info = self.action_queue.get(timeout=1)
+                # print(user_action_with_info)
+                user_action = user_action_with_info[0]
+                action_user_id = user_action_with_info[1]
+                user_info = user_action_with_info[2]
+
+                action_success = True
+                active_status = [False for _ in range(len(self.players))]
+                next_player = -1
 
                 # take action
                 if user_action == self.GameActions.DEAL:
-                    pass
+                    for player in self.players:
+                        player.draw_cards(self.deck, 5)
+
+                    self.turn_count += 1
+                    self.old_turn_count = self.turn_count
+                    
                 elif user_action == self.GameActions.DRAW:
-                    pass
+                    if self.turn_count == self.old_turn_count:
+                        self.draw_times += 1
+                    if self.draw_times <= self.max_draw_times_per_turn:
+                        current_player = self.players[action_user_id]
+                        current_player.draw_cards(self.deck, user_info)
+                        active_status[action_user_id] = True
+                    else:
+                        action_success = False
+                    
                 elif user_action == self.GameActions.STEAL:
-                    pass
+                    if self.turn_count == self.old_turn_count:
+                        self.steal_times += 1
+                    if self.steal_times <= self.max_steal_times_per_turn and \
+                        type(user_info) == str:
+                        current_player = self.players[action_user_id]
+                        for player in self.players:
+                            if player == user_info:
+                                current_player.take_random_card(player)
+                                break
+                        active_status[action_user_id] = True
+                    else:
+                        action_success = False
+
                 elif user_action == self.GameActions.DISCARD:
-                    pass
+                    if type(user_info) == list:
+                        current_player = self.players[action_user_id]
+                        if(current_player.discard_group(user_info, self.deck)):
+                            active_status[action_user_id] = True
+                            if self.players[action_user_id].has_empty_hand():
+                                self.winner = self.players[action_user_id].name
+                        else:
+                            action_success = False
+                    else:
+                        action_success = False
+                    
                 elif user_action == self.GameActions.PLAY_FOR_ME:
+                    # AI does for me
                     pass
                 elif user_action == self.GameActions.SKIP:
-                    pass
+                    active_status[action_user_id] = True
+                    if action_user_id + 1 < len(self.players):
+                        next_player = action_user_id + 1
+                        self.draw_times = 0
+                        self.steal_times = 0
+                        self.ai_actions_pool = [action for action in self.GameActions \
+                        if action != self.excluded_action1 and action != self.excluded_action2]
+                    else:
+                        self.turn_count += 1
+                        
 
-                self.update_status()
+                self.update_status(user_action, action_success, active_status, next_player)
 
                 # self.callback(copy.deepcopy(self.game_status))
                 self.render_queue.put(copy.deepcopy(self.game_status))
@@ -103,7 +188,48 @@ class NottyGame:
                 continue
 
 
+    def ai_take_action(self, current_ai_id):
 
+        random_action = random.choice(self.ai_actions_pool)
+        if random_action != self.GameActions.DISCARD:
+            self.ai_actions_pool.remove(random_action)
+
+        print(f"Randomly selected action: {random_action}")
+
+        if random_action == self.GameActions.DRAW:
+            draw_card_number = random.randint(1, self.max_draw_times_per_turn)
+            self.receive_action(random_action, current_ai_id, draw_card_number)
+        elif random_action == self.GameActions.STEAL:
+            candidate = [p for p in self.player_name if p != self.players[current_ai_id].name]
+            target = random.choice(candidate)
+            print(target)
+            self.receive_action(random_action, current_ai_id, target)
+        elif random_action == self.GameActions.DISCARD:
+            discarded_cards = self.players[current_ai_id].find_largest_valid_group()
+            if discarded_cards:
+                self.receive_action(random_action, current_ai_id, discarded_cards)
+            else:
+                if len(self.ai_actions_pool) == 2:
+                    self.ai_actions_pool.remove(random_action)
+        elif random_action == self.GameActions.SKIP:
+            self.receive_action(random_action, current_ai_id)
+
+
+
+
+
+                
+            
+
+                    
+                
+
+
+            
+
+
+
+        
 
 
         

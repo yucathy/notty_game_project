@@ -1,9 +1,16 @@
 import random
+import itertools
 class Players:
     
     def __init__(self, name):
         self.name = name
         self.hand = []
+
+    def __eq__(self, name: str) -> bool:
+        if type(name) == str:
+            return self.name == name
+        else:
+            return False
 
     def draw_cards(self, deck, num_cards):
         self.hand.extend(deck.draw(num_cards))
@@ -16,11 +23,14 @@ class Players:
             self.hand.append(card)
 
     # 验证卡组是否符合丢弃条件，并更新玩家手牌和牌堆
-    def discard_group(self, group, deck):
+    def discard_group(self, group, deck) -> bool:
         if self.is_valid_group(group):
             for card in group:
                 self.hand.remove(card)
             deck.add_to_deck(group)
+            return True
+        else:
+            return False
 
     # 是否是有效组
     # TODO：需要再看一下
@@ -44,3 +54,29 @@ class Players:
     # 检查玩家手牌是否为空
     def has_empty_hand(self):
         return len(self.hand) == 0
+
+class AIPlayer(Players):
+    
+    def __init__(self, name):
+        super().__init__(name)
+
+    def find_valid_group(self) -> list:
+        '''
+        return a valid combination in collection.
+        '''
+
+        length = len(self.hand)
+        for number in range(length, 2, -1):
+            combinations = itertools.combinations(self.hand, number)
+            for combo in combinations:
+                if self.is_valid_group(combo):
+                    return combo
+        
+        return None
+    
+    def find_largest_valid_group(self) -> list:
+        '''
+        return a max valid combination in collection.
+        '''
+
+        return self.find_valid_group()
