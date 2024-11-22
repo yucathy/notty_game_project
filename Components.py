@@ -41,22 +41,22 @@ class BasicComponent(object):
 
 class Image(object):
     def __init__(self):
-        self.mute = pygame.image.load("../images/mute.png")
-        self.unmute = pygame.image.load("../images/unmute.png")
-        self.back = pygame.image.load("../images/back.png")
-        self.play = pygame.image.load("../images/play.png")
-        self.start = pygame.image.load("../images/start.png")
-        self.instruction = pygame.image.load("../images/instruction.png")
-        self.woman = pygame.image.load("../images/woman.png")
-        self.man = pygame.image.load("../images/man.png")
-        self.cardback = pygame.image.load("../images/cardback.jpg")
+        self.mute = pygame.image.load("./images/mute.png")
+        self.unmute = pygame.image.load("./images/unmute.png")
+        self.back = pygame.image.load("./images/back.png")
+        self.play = pygame.image.load("./images/play.png")
+        self.start = pygame.image.load("./images/start.png")
+        self.instruction = pygame.image.load("./images/instruction.png")
+        self.woman = pygame.image.load("./images/woman.png")
+        self.man = pygame.image.load("./images/man.png")
+        self.cardback = pygame.image.load("./images/cardback.jpg")
 
 
 class Sound(object):
     def __init__(self):
         # self.back_g = "../sounds/bg.wav"
-        self.shuffled = pygame.mixer.Sound('../sounds/shuffle.wav')
-        self.click = pygame.mixer.Sound('../sounds/clicked.wav')
+        self.shuffled = pygame.mixer.Sound('./sounds/shuffle.wav')
+        self.click = pygame.mixer.Sound('./sounds/clicked.wav')
 
 
 class ButtonImage():
