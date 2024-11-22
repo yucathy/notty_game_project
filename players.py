@@ -1,30 +1,54 @@
 import random
 import itertools
 class Players:
+
+    maxinum_hand_size = 20
     
     def __init__(self, name):
         self.name = name
         self.hand = []
+        self.add = []
+        self.delete = []
 
     def __eq__(self, name: str) -> bool:
         if type(name) == str:
             return self.name == name
         else:
             return False
+        
+    def clear_temp_list(self):
+        self.add.clear()
+        self.delete.clear()
 
-    def draw_cards(self, deck, num_cards):
-        self.hand.extend(deck.draw(num_cards))
+    def draw_cards(self, deck, num_cards) -> bool:
+        if (len(self.hand) + num_cards) <= self.maxinum_hand_size:
+            self.clear_temp_list()
+            cards = deck.draw(num_cards)
+            for card in cards:
+                self.add.append(card)
+            self.hand.extend(cards)
+            return True
+        
+        return False
 
     # 从其他玩家手牌中随机取一张卡
-    def take_random_card(self, other_player):
-        if other_player.hand:
+    def take_random_card(self, other_player) -> bool:
+        self.clear_temp_list()
+        other_player.clear_temp_list()
+        if other_player.hand and (len(self.hand) + 1) <= self.maxinum_hand_size:
             card = random.choice(other_player.hand)
+            other_player.delete.append(card)
             other_player.hand.remove(card)
+            self.add.append(card)
             self.hand.append(card)
+            return True
+        return False
 
     # 验证卡组是否符合丢弃条件，并更新玩家手牌和牌堆
     def discard_group(self, group, deck) -> bool:
+        self.clear_temp_list()
         if self.is_valid_group(group):
+            self.delete.clear()
             for card in group:
                 self.hand.remove(card)
             deck.add_to_deck(group)
@@ -53,7 +77,9 @@ class Players:
 
     # 检查玩家手牌是否为空
     def has_empty_hand(self):
+        self.clear_temp_list()
         return len(self.hand) == 0
+    
 
 class AIPlayer(Players):
     

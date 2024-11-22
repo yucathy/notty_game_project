@@ -26,8 +26,7 @@ class NottyGame:
         DEAL = "deal"
         DRAW = "draw"         
         STEAL = "steal"       
-        DISCARD = "discard"
-        PLAY_FOR_ME = "play_for_me"   
+        DISCARD = "discard" 
         SKIP = "skip"   
 
     def __init__(self):
@@ -48,9 +47,8 @@ class NottyGame:
         self.winner = None
 
         self.excluded_action1 = self.GameActions.DEAL
-        self.excluded_action2 = self.GameActions.PLAY_FOR_ME
         self.ai_actions_pool = [action for action in self.GameActions \
-                        if action != self.excluded_action1 and action != self.excluded_action2]
+                        if action != self.excluded_action1]
         
     def setup(self, player_count: int, player_name: list , computer_level: str):
         '''
@@ -66,10 +64,10 @@ class NottyGame:
         for i in range(player_count):
             name = f'player {i}'
             self.player_name.append(name)
-            if i == 0:
-                self.players.append(Players(name))
-            else:
-                self.players.append(AIPlayer(name))
+            # if i == 0:
+            #     self.players.append(Players(name))
+            # else:
+            self.players.append(AIPlayer(name))
 
         print(player_count, player_name, computer_level)
 
@@ -79,7 +77,7 @@ class NottyGame:
     def create_card(self, colour: str, number: int) -> Card:
         return Card(colour, number)
 
-    def receive_action(self, action: GameActions, action_user_id: int = None, action_info = None):
+    def send_action(self, action: GameActions, action_user_id: int = None, action_info = None):
         self.action_queue.put([action, action_user_id, action_info])
 
     def start_game(self):
@@ -101,7 +99,8 @@ class NottyGame:
         self.game_status["winner"] = self.winner
         player_list = []
         for player, active in zip(self.players, active_status):
-            player_list.append({"name": player.name, "handset": player.hand, "active": active})
+            player_list.append({"name": player.name, "handset": player.hand, \
+                                "add": player.add, "delete": player.delete, "active": active})
 
         self.game_status["players"] = player_list
         self.game_status['next_player'] = next_player
@@ -133,7 +132,8 @@ class NottyGame:
                         self.draw_times += 1
                     if self.draw_times <= self.max_draw_times_per_turn:
                         current_player = self.players[action_user_id]
-                        current_player.draw_cards(self.deck, user_info)
+                        if not current_player.draw_cards(self.deck, user_info):
+                            action_success = False
                         active_status[action_user_id] = True
                     else:
                         action_success = False
@@ -142,12 +142,11 @@ class NottyGame:
                     if self.turn_count == self.old_turn_count:
                         self.steal_times += 1
                     if self.steal_times <= self.max_steal_times_per_turn and \
-                        type(user_info) == str:
+                        type(user_info) == int:
                         current_player = self.players[action_user_id]
-                        for player in self.players:
-                            if player == user_info:
-                                current_player.take_random_card(player)
-                                break
+                        stealed_player = self.players[user_info]
+                        if not current_player.take_random_card(stealed_player):
+                            action_success = False
                         active_status[action_user_id] = True
                     else:
                         action_success = False
@@ -164,19 +163,20 @@ class NottyGame:
                     else:
                         action_success = False
                     
-                elif user_action == self.GameActions.PLAY_FOR_ME:
-                    # AI does for me
-                    pass
                 elif user_action == self.GameActions.SKIP:
                     active_status[action_user_id] = True
+                    for player in self.players:
+                        player.clear_temp_list()
                     if action_user_id + 1 < len(self.players):
                         next_player = action_user_id + 1
                         self.draw_times = 0
                         self.steal_times = 0
-                        self.ai_actions_pool = [action for action in self.GameActions \
-                        if action != self.excluded_action1 and action != self.excluded_action2]
                     else:
                         self.turn_count += 1
+                        next_player = self.user_id
+
+                    self.ai_actions_pool = [action for action in self.GameActions \
+                    if action != self.excluded_action1]
                         
 
                 self.update_status(user_action, action_success, active_status, next_player)
@@ -185,6 +185,8 @@ class NottyGame:
                 self.render_queue.put(copy.deepcopy(self.game_status))
 
             except queue.Empty:
+                # update the reender with empty dict
+                self.render_queue.put({}) 
                 continue
 
 
@@ -193,26 +195,28 @@ class NottyGame:
         random_action = random.choice(self.ai_actions_pool)
         if random_action != self.GameActions.DISCARD:
             self.ai_actions_pool.remove(random_action)
-
+        print(self.ai_actions_pool)
         print(f"Randomly selected action: {random_action}")
 
         if random_action == self.GameActions.DRAW:
             draw_card_number = random.randint(1, self.max_draw_times_per_turn)
-            self.receive_action(random_action, current_ai_id, draw_card_number)
+            self.send_action(random_action, current_ai_id, draw_card_number)
         elif random_action == self.GameActions.STEAL:
-            candidate = [p for p in self.player_name if p != self.players[current_ai_id].name]
-            target = random.choice(candidate)
-            print(target)
-            self.receive_action(random_action, current_ai_id, target)
+            candidate = [p for p in self.players if p != self.players[current_ai_id] \
+                         and len(p.hand) > 1]
+            if candidate:
+                target = random.choice(candidate)
+                print(target)
+                self.send_action(random_action, current_ai_id, target)
         elif random_action == self.GameActions.DISCARD:
             discarded_cards = self.players[current_ai_id].find_largest_valid_group()
             if discarded_cards:
-                self.receive_action(random_action, current_ai_id, discarded_cards)
+                self.send_action(random_action, current_ai_id, discarded_cards)
             else:
                 if len(self.ai_actions_pool) == 2:
                     self.ai_actions_pool.remove(random_action)
         elif random_action == self.GameActions.SKIP:
-            self.receive_action(random_action, current_ai_id)
+            self.send_action(random_action, current_ai_id)
 
 
 
