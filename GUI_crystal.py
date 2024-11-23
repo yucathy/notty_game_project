@@ -1,5 +1,6 @@
 from Components import *
 from Functions import *
+import time 
 
 class GUI:
     def __init__(self,nottygame):
@@ -75,8 +76,14 @@ class GUI:
             # clock.tick(40)
             screen.fill((202,228,241))
             current_time = pygame.time.get_ticks()
-
-
+            start_time = time.time()
+            if not self.nottygame.render_queue.empty():
+                self.game_status = self.nottygame.render_queue.get(timeout = 0.033)
+            else:
+                print("the render_queue is empty.....")
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            print(f"Elapsed time: {elapsed_time:.2f} seconds")
             print("self.game_status---",self.game_status)
 
             if basic.play_page == "HOME":
@@ -282,7 +289,7 @@ class GUI:
                                 sound.click.play()
                             # deal cards
                             self.nottygame.send_action(self.nottygame.GameActions.DEAL)
-                            self.game_status = self.nottygame.render_queue.get()
+                            # self.game_status = self.nottygame.render_queue.get()
                             basic.actionType = "card_init"
                         if drawButt_deck.rect.collidepoint(event.pos):
                             if musicOn:

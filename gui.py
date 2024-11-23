@@ -26,8 +26,11 @@ class NottyGUI:
             for _ in range(3):
                 self.nottygame.send_action(self.nottygame.GameActions.DRAW, self.nottygame.user_id, 1)
                 time.sleep(0.02)
-
+                start_time = time.time()
                 self.game_status = self.nottygame.render_queue.get(timeout= 0.033)
+                end_time = time.time()
+                elapsed_time = end_time - start_time
+                print(f"Elapsed time: {elapsed_time:.2f} seconds")
                 print(self.game_status)
                 print("-----------------------")
 
@@ -47,6 +50,7 @@ class NottyGUI:
             time.sleep(0.02)
 
             self.game_status = self.nottygame.render_queue.get(timeout= 0.033)
+
             print(self.game_status)
             print("-----------------------")
 

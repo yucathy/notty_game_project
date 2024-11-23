@@ -186,7 +186,7 @@ class NottyGame:
 
             except queue.Empty:
                 # update the reender with empty dict
-                self.render_queue.put({}) 
+                # self.render_queue.put({}) 
                 continue
 
 
