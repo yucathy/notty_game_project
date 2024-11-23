@@ -43,7 +43,6 @@ class NottyGame:
         self.draw_times = 0
         self.old_turn_count = 0
         self.steal_times = 0
-        self.player_name = []
         self.winner = None
 
         self.excluded_action1 = self.GameActions.DEAL
@@ -62,12 +61,11 @@ class NottyGame:
         assert type(computer_level) != 'str', "computer_level type should be str."
 
         for i in range(player_count):
-            name = f'player {i}'
-            self.player_name.append(name)
+            # name = f'player {i}'
             # if i == 0:
             #     self.players.append(Players(name))
             # else:
-            self.players.append(AIPlayer(name))
+            self.players.append(AIPlayer(player_name[i]))
 
         print(player_count, player_name, computer_level)
 
