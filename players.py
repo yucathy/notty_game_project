@@ -9,12 +9,12 @@ class Players:
         self.hand = []
         self.add = []
         self.delete = []
-
-    def __eq__(self, name: str) -> bool:
-        if type(name) == str:
-            return self.name == name
-        else:
-            return False
+        
+    def initialize_state(self):
+        '''reset the status'''
+        self.hand.clear()
+        self.add.clear()
+        self.delete.clear()
         
     def clear_temp_list(self):
         self.add.clear()
@@ -70,10 +70,6 @@ class Players:
            len(set(card.color for card in group)) == len(group):
             return True
         return False
-
-    # 显示当前玩家手牌
-    def display_hand(self):
-        print(f"{self.name}'s hand: {self.hand}")
 
     # 检查玩家手牌是否为空
     def has_empty_hand(self):

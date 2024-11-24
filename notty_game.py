@@ -34,20 +34,37 @@ class NottyGame:
         self.action_queue = queue.Queue()
         self.render_queue = queue.Queue()
         self.game_thread = None
+        self.winner = None
         self.running = False
-        # self.callback = None
         self.game_status = {}
         self.players = []
-        self.deck = Deck()
         self.turn_count = 0
         self.draw_times = 0
         self.old_turn_count = 0
         self.steal_times = 0
-        self.winner = None
-
-        self.excluded_action1 = self.GameActions.DEAL
+        
+        self.deck = Deck()
         self.ai_actions_pool = [action for action in self.GameActions \
-                        if action != self.excluded_action1]
+                        if action != self.GameActions.DEAL]
+        
+    def __initialize_state(self):
+        '''keep players' setting when play again.'''
+        self.action_queue = queue.Queue()
+        self.render_queue = queue.Queue()
+        self.game_thread = None
+        self.winner = None
+        self.running = False
+        self.game_status = {}
+        self.turn_count = 0
+        self.draw_times = 0
+        self.old_turn_count = 0
+        self.steal_times = 0
+        self.deck = Deck()
+        self.ai_actions_pool = [action for action in self.GameActions \
+                        if action != self.GameActions.DEAL]
+        
+        for player in self.players:
+            player.initialize_state()
         
     def setup(self, player_count: int, player_name: list , computer_level: str):
         '''
@@ -56,21 +73,16 @@ class NottyGame:
         - player_name
         - computer_level
         '''
+
         assert type(player_count) != 'int', "player_count type should be int."
         assert type(player_name) != 'list', "player_name type should be a list."
         assert type(computer_level) != 'str', "computer_level type should be str."
 
+        self.players.clear()
         for i in range(player_count):
-            # name = f'player {i}'
-            # if i == 0:
-            #     self.players.append(Players(name))
-            # else:
             self.players.append(AIPlayer(player_name[i]))
 
-        print(player_count, player_name, computer_level)
-
-    # def register_callback(self, func):
-    #     self.callback = func
+        # print(player_count, player_name, computer_level)
 
     def create_card(self, colour: str, number: int) -> Card:
         return Card(colour, number)
@@ -80,14 +92,14 @@ class NottyGame:
 
     def start_game(self):
         self.running = True
-        self.game_thread = threading.Thread(target = self.process_turns)
+        self.game_thread = threading.Thread(target = self.__process_turns)
         self.game_thread.start()
-        pass
 
     def end_game(self):
         self.running = False
         if self.game_thread:
             self.game_thread.join()
+        self.__initialize_state()
 
     def update_status(self, user_action, action_success, active_status, next_player):
         self.game_status["deck"] = self.deck.cards
@@ -103,7 +115,7 @@ class NottyGame:
         self.game_status["players"] = player_list
         self.game_status['next_player'] = next_player
 
-    def process_turns(self):
+    def __process_turns(self):
         while self.running:
             try:
                 # get user action
@@ -174,9 +186,8 @@ class NottyGame:
                         next_player = self.user_id
 
                     self.ai_actions_pool = [action for action in self.GameActions \
-                    if action != self.excluded_action1]
+                    if action != self.GameActions.DEAL]
                         
-
                 self.update_status(user_action, action_success, active_status, next_player)
 
                 # self.callback(copy.deepcopy(self.game_status))
@@ -200,12 +211,12 @@ class NottyGame:
             draw_card_number = random.randint(1, self.max_draw_times_per_turn)
             self.send_action(random_action, current_ai_id, draw_card_number)
         elif random_action == self.GameActions.STEAL:
-            candidate = [p for p in self.players if p != self.players[current_ai_id] \
-                         and len(p.hand) > 1]
-            if candidate:
-                target = random.choice(candidate)
-                print(target)
-                self.send_action(random_action, current_ai_id, target)
+            candidate_idx = [idx for idx in range(len(self.players)) if idx != current_ai_id \
+                         and len(self.players[idx].hand) > 1]
+            if candidate_idx:
+                target_idx = random.choice(candidate_idx)
+                print(target_idx)
+                self.send_action(random_action, current_ai_id, target_idx)
         elif random_action == self.GameActions.DISCARD:
             discarded_cards = self.players[current_ai_id].find_largest_valid_group()
             if discarded_cards:

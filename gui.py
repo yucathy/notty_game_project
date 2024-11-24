@@ -67,7 +67,7 @@ class NottyGUI:
             # skip card
             self.nottygame.send_action(self.nottygame.GameActions.SKIP, self.nottygame.user_id)
 
-            time.sleep(0.02)
+            time.sleep(1)
 
             self.game_status = self.nottygame.render_queue.get(timeout= 0.033)
             print(self.game_status)
