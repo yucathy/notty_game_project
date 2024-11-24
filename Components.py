@@ -11,22 +11,6 @@ class BasicComponent(object):
             "level": "Hard"
         }]
         self.actionType = "start"
-        self.actionMessage = {
-            "start": "Start!",
-            "deck_shuffle": "Deck Shuffle",
-            "card_init": "Deal 5 cards to each player",
-            "select_action": "Select one action type",
-            "draw_from_deck": "Draw up to 3 cards from the deck",
-            "show_card": "Show cards you have drawn",
-            "select_player": "Please select one player",
-            "draw_from_player": "Please select one card from player",
-            "select_discard_card": "",
-            "discard": "",
-            "update_hands": "Update your own cards",
-            "skip": "",
-            "play_for_me": "",
-            "next_turn": ""
-        };
         self.allHandCard = {         # 0: you, 1: left player, 2: right player
             0: [],
             1: [],
@@ -35,7 +19,8 @@ class BasicComponent(object):
         self.drawnDiscard = set()    # cards you want to discard
         self.drawnDeckNum = 0        # number of cards drawn from deck
         self.currentPlayer = 0       # 0: you, 1: left player, 2: right player
-        self.selectPlayer = 0        # choose a player you want to steal
+        self.selectPlayer = 0        # choose a player you want to steal(player 1 or 2)
+        # self.mycardClickable = True
         self.actionNum = {
             "draw": 0,
             "steal": 0
@@ -43,7 +28,6 @@ class BasicComponent(object):
         self.init_time = 0
         self.showDrawCard_time = 0
         self.showStealCard_time = 0
-
 
 
 class ActionType(object):
@@ -62,6 +46,22 @@ class ActionType(object):
         self.SKIP = "skip"
         self.PLAY_FOR_ME = "play_for_me"
         self.NEXT = "next_turn"
+        self.actionMessage = {
+            self.START: "Start!",
+            self.SHUFFLE: "Deck Shuffle",
+            self.INIT: "Deal 5 cards to each player",
+            self.SELECT_ACTION: "Select one action type",
+            self.DRAW: "Draw up to 3 cards from the deck",
+            self.SHOW: "Show cards you have drawn",
+            self.UPDATE: "Update your own cards",
+            self.SELECT_PLAYER: "Please select one player",
+            self.STEAL: "Please select one card from player",
+            self.SELECT_DISCARD: "",
+            self.DISCARD: "",
+            self.SKIP: "",
+            self.PLAY_FOR_ME: "",
+            self.NEXT: ""
+        };
 
 
 class Image(object):

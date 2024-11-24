@@ -88,18 +88,18 @@ class NottyGUI:
                     if self.game_status['type'] == self.nottygame.GameActions.SKIP:
                         break
 
-        print("ai play for me now!!!")
-
-        while True:
-            self.nottygame.ai_take_action(self.game_status['next_player'])
-
-            try:
-                self.game_status = self.nottygame.render_queue.get(timeout= 0.033)
-            except queue.Empty:
-                continue
-            print(self.game_status)
-            if self.game_status['type'] == self.nottygame.GameActions.SKIP:
-                break
+        # print("ai play for me now!!!")
+        #
+        # while True:
+        #     self.nottygame.ai_take_action(self.game_status['next_player'])
+        #
+        #     try:
+        #         self.game_status = self.nottygame.render_queue.get(timeout= 0.033)
+        #     except queue.Empty:
+        #         continue
+        #     print(self.game_status)
+        #     if self.game_status['type'] == self.nottygame.GameActions.SKIP:
+        #         break
 
         self.nottygame.end_game()
 

@@ -88,7 +88,8 @@ def renderDrawnCard(w,h,playerList,currentPlayer):
             showCardList.append((showcardImg, imgPos))
     return showCardList
 
-
+def renderMessage():
+    pass
 
 
 

@@ -1,5 +1,6 @@
 from Components import *
 from Functions import *
+import queue
 
 class GUI:
     def __init__(self,nottygame):
@@ -13,7 +14,7 @@ class GUI:
         pygame.init()
         pygame.display.set_caption("Notty")
         screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-        # clock = pygame.time.Clock()
+        clock = pygame.time.Clock()
 
         basic = BasicComponent()
         img = Image()
@@ -61,8 +62,8 @@ class GUI:
         # draw button
         drawImg = img.back.convert_alpha()
         drawButt = ButtonImage(460, 300, drawImg)
-        completeImg_deck = img.back.convert_alpha()
-        completeButt_deck = ButtonImage(520, 300, completeImg_deck)
+        completeImg = img.back.convert_alpha()
+        completeButt = ButtonImage(520, 300, completeImg)
         # steal button
         stealButtArr = []
         stealImg = img.back.convert_alpha()
@@ -79,7 +80,7 @@ class GUI:
 
 
         while active:
-            # clock.tick(40)
+            clock.tick(30)
             screen.fill((202,228,241))
             current_time = pygame.time.get_ticks()
 
@@ -153,18 +154,20 @@ class GUI:
                 screen.blits(tempArr)
 
                 if basic.actionType == aType.SELECT_ACTION:
-                    print("basic.actionNum---",basic.actionNum)
+                    # print("basic.actionNum---",basic.actionNum)
                     if skipButt.clickable:
                         skipButt.draw(screen)
                     if basic.actionNum["draw"] == 0:
                         drawButt.draw(screen)
+                        drawButt.clickable = True
                     if basic.actionNum["steal"] == 0:
                         for stealButt in stealButtArr:
                             stealButt.draw(screen)
+                            stealButt.clickable = True
 
                 if basic.actionType == aType.DRAW:
                     drawButt.draw(screen)
-                    completeButt_deck.draw(screen)
+                    completeButt.draw(screen)
                     if basic.currentPlayer == 0:
                         totalWidth = getDrawnCardWidth(basic.drawnDeckNum)
                         for i in range(basic.drawnDeckNum):
@@ -204,14 +207,14 @@ class GUI:
                     if self.game_status["action_success"]:
                         showCardList = renderDrawnCard(WINDOW_WIDTH, WINDOW_HEIGHT, self.game_status["players"], basic.currentPlayer)
                         screen.blits(showCardList)
-                        if basic.showDrawCard_time == 0:
-                            basic.showDrawCard_time = current_time
+                        if basic.showStealCard_time == 0:
+                            basic.showStealCard_time = current_time
                         else:
-                            if current_time - basic.showDrawCard_time >= 3000:
-                                basic.showDrawCard_time = current_time
+                            if current_time - basic.showStealCard_time >= 3000:
+                                basic.showStealCard_time = current_time
                                 (myCards,leftPlayerCards,rightPlayerCards) = renderHandCards(WINDOW_WIDTH,WINDOW_HEIGHT,self.game_status["players"])
                                 basic.allHandCard = {0: myCards, 1: leftPlayerCards, 2: rightPlayerCards}
-                                basic.actionType = aType.UPDATE
+                                basic.actionType = aType.SELECT_ACTION
                         basic.actionNum["steal"] = 1
                         if basic.actionNum["draw"] == 0:
                             drawButt.draw(screen)
@@ -230,20 +233,26 @@ class GUI:
                         basic.drawnDiscard.clear()
                         (myCards, leftPlayerCards, rightPlayerCards) = renderHandCards(WINDOW_WIDTH,WINDOW_HEIGHT,self.game_status["players"])
                         basic.allHandCard = {0: myCards, 1: leftPlayerCards, 2: rightPlayerCards}
-                        basic.actionType = aType.UPDATE
                     else:
                         basic.drawnDiscard.clear()
+                    basic.actionType = aType.SELECT_ACTION
 
                 if basic.actionType == aType.SKIP:
-                    print("self.game_status---", self.game_status)
                     if self.game_status['next_player'] != -1:
-                        # if self.game_status['next_player'] == 0:
-                        #     basic.actionType = aType.NEXT
                         next_player = self.game_status['next_player']
-                        while True:
-                            self.nottygame.ai_take_action(next_player)
-                            if self.game_status['type'] == self.nottygame.GameActions.SKIP:
-                                break
+                        if next_player == 0:
+                            basic.actionType = aType.NEXT
+                        else:
+                            while True:
+                                self.nottygame.ai_take_action(next_player)
+                                try:
+                                    self.game_status = self.nottygame.render_queue.get(timeout=0.033)
+                                except queue.Empty:
+                                    continue
+                                print("self.game_status---", self.game_status)
+                                if self.game_status['type'] == self.nottygame.GameActions.SKIP:
+                                    break
+
 
 
 
@@ -308,13 +317,13 @@ class GUI:
                             for stealButt in stealButtArr:
                                 stealButt.clickable = False
                         # complete draw action
-                        if completeButt_deck.rect.collidepoint(event.pos) and completeButt_deck.clickable:
+                        if completeButt.rect.collidepoint(event.pos) and completeButt.clickable:
                             if basic.drawnDeckNum > 0:
                                 if musicOn:
                                     sound.click.play()
                                 self.nottygame.send_action(self.nottygame.GameActions.DRAW, basic.currentPlayer, basic.drawnDeckNum)
                                 drawButt.clickable = False
-                                completeButt_deck.clickable = False
+                                completeButt.clickable = False
                                 basic.actionType = aType.SHOW
                         # select player and draw from player(steal)
                         for i in range(len(stealButtArr)):
@@ -339,11 +348,12 @@ class GUI:
                             itemWidth = 85 if i == len(basic.allHandCard[0])-1 else 20
                             itemRect = item[0].get_rect(topleft=item[1], width=itemWidth)
                             if itemRect.collidepoint(event.pos):
-                                basic.drawnDiscard.add(item)
-                                drawButt.clickable = False
-                                for stealButt in stealButtArr:
-                                    stealButt.clickable = False
-                                basic.actionType = aType.SELECT_DISCARD
+                                if basic.actionType == aType.SELECT_ACTION or basic.actionType == aType.SELECT_DISCARD:
+                                    basic.drawnDiscard.add(item)
+                                    drawButt.clickable = False
+                                    for stealButt in stealButtArr:
+                                        stealButt.clickable = False
+                                    basic.actionType = aType.SELECT_DISCARD
                         # discard my card
                         if discardButt.rect.collidepoint(event.pos) and discardButt.clickable:
                             if musicOn:
