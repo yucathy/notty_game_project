@@ -1,6 +1,5 @@
 from Components import *
 from Functions import *
-import time 
 
 class GUI:
     def __init__(self,nottygame):
@@ -19,6 +18,7 @@ class GUI:
         basic = BasicComponent()
         img = Image()
         sound = Sound()
+        aType = ActionType()
 
         active = True
         musicOn = True
@@ -26,7 +26,7 @@ class GUI:
         # pygame.mixer.music.play(-1)             # continuous music
         # pygame.mixer.music.set_volume(0.3)      # volume
 
-        self.nottygame.setup(3, ['Grace', 'John'], self.nottygame.ComputerLevel.EASY)   # name can be None.
+        self.nottygame.setup(3, ['You', 'Grace', 'John'], self.nottygame.ComputerLevel.EASY)   # name can be None.
         self.nottygame.start_game()
 
         # play/instruction button
@@ -55,41 +55,47 @@ class GUI:
         fontLeft1 = renderSysFont("Arial", 50, "<", (255, 238, 46), (190, 400))
         fontRight1 = renderSysFont("Arial", 50, ">", (255, 238, 46), (330, 400))
 
-        # 待替换按钮
-        # 开始游戏
+        # deal card button
         startImg = img.start.convert_alpha()
         startButt = ButtonImage(450, 20, startImg)
-        # 抽牌按钮
-        drawImg_deck = img.back.convert_alpha()
-        drawButt_deck = ButtonImage(460, 300, drawImg_deck)
+        # draw button
+        drawImg = img.back.convert_alpha()
+        drawButt = ButtonImage(460, 300, drawImg)
         completeImg_deck = img.back.convert_alpha()
         completeButt_deck = ButtonImage(520, 300, completeImg_deck)
-        drawImg_player1 = img.back.convert_alpha()
-        drawButt_player1 = ButtonImage(60, WINDOW_HEIGHT/2-drawImg_player1.get_height()/2, drawImg_player1)  # left player
-        drawImg_player2 = img.back.convert_alpha()
-        drawButt_player2 = ButtonImage(900, WINDOW_HEIGHT/2-drawImg_player2.get_height()/2, drawImg_player2)  # right player
-        discardImg_player1 = img.back.convert_alpha()
-        discardButt_player1 = ButtonImage(0,0,discardImg_player1)
+        # steal button
+        stealButtArr = []
+        stealImg = img.back.convert_alpha()
+        stealButt1 = ButtonImage(60, WINDOW_HEIGHT/2-stealImg.get_height()/2, stealImg)    # left player
+        stealButt2 = ButtonImage(900, WINDOW_HEIGHT/2-stealImg.get_height()/2, stealImg)    # right player
+        stealButtArr.append(stealButt1)
+        stealButtArr.append(stealButt2)
+        # discard button
+        discardImg = img.back.convert_alpha()
+        discardButt = ButtonImage(900, 650, discardImg)
+        # skip button
+        skipImg = img.back.convert_alpha()
+        skipButt = ButtonImage(950, 650, skipImg)
 
 
         while active:
             # clock.tick(40)
             screen.fill((202,228,241))
             current_time = pygame.time.get_ticks()
-            start_time = time.time()
+
             if not self.nottygame.render_queue.empty():
                 self.game_status = self.nottygame.render_queue.get(timeout = 0.033)
+            # print("self.game_status---",self.game_status)
+            # print("basic.allHandCard----",len(basic.allHandCard[0]), basic.allHandCard)
+
+            if musicOn:
+                muteButt.draw(screen)
             else:
-                print("the render_queue is empty.....")
-            end_time = time.time()
-            elapsed_time = end_time - start_time
-            print(f"Elapsed time: {elapsed_time:.2f} seconds")
-            print("self.game_status---",self.game_status)
+                unmuteButt.draw(screen)
 
             if basic.play_page == "HOME":
                 playButt.draw(screen)
                 instructButt.draw(screen)
-
                 # player and difficulty
                 if basic.playerList[0]["level"] == "Easy":
                     fontLevel0 = renderSysFont("Arial", 50, "Easy", (255, 238, 46), (220, 300))
@@ -101,29 +107,24 @@ class GUI:
                     fontLevel1 = renderSysFont("Arial", 50, "Hard", (255, 238, 46), (220, 400))
                 screen.blits((fontName0,fontLevel0,fontLeft0,fontRight0,fontName1,fontLevel1,fontLeft1,fontRight1))
 
-                if musicOn:
-                    muteButt.draw(screen)
-                else:
-                    unmuteButt.draw(screen)
-
             elif basic.play_page == "INFO":
                 backButt.draw(screen)
 
             elif basic.play_page == "GAME":
                 backButt.draw(screen)
-                startButt.draw(screen)
+                if startButt.clickable:
+                    startButt.draw(screen)
                 screen.blit(img.woman, (20, 70))
                 screen.blit(img.man, (900, 70))
-
                 # playerName0 = renderSysFont("Arial", 20, "Grace", (255, 238, 46), (40, 340))
                 # playerName1 = renderSysFont("Arial", 20, "John", (255, 238, 46), (920, 330))
                 # yourName = renderSysFont("Arial", 20, "You", (255, 238, 46), (450, 550))
                 # screen.blits((playerName0,playerName1,yourName))
 
-                if basic.actionType == "start":
+                if basic.actionType == aType.START:
                     if musicOn:
                         sound.shuffled.play()
-                    basic.actionType = "deck_shuffle"
+                    basic.actionType = aType.SHUFFLE
 
                 # deck init
                 totalWidth = getCardListWidth(12)
@@ -131,115 +132,118 @@ class GUI:
                     screen.blit(img.cardback, (WINDOW_WIDTH/2-totalWidth/2 + 20 * i, 270))
 
                 # hand cards init
-                if basic.actionType == "card_init":
-                    myCards = []
-                    leftPlayerCards = []
-                    rightPlayerCards = []
-                    for player in getData()["players"]:
-                        if player["name"] == "Me":
-                            totalWidth = getCardListWidth(len(player["hand"]))
-                            discardButt_player1 = ButtonImage(WINDOW_WIDTH/2-totalWidth/2 + totalWidth + 40, 630, discardImg_player1)
-                            for i in range(len(player["hand"])):
-                                mycardImg = pygame.image.load("./images/" + player["hand"][i].replace(" ","") + ".png")
-                                imgPos = (WINDOW_WIDTH/2-totalWidth/2 + 20 * i, 560)
-                                myCards.append((mycardImg, imgPos))
-                        if player["name"] == "Grace":
-                            totalWidth = getCardListWidth(len(player["hand"]))
-                            for i in range(len(player["hand"])):
-                                leftCardImg = pygame.image.load("./images/" + player["hand"][i].replace(" ","") + ".png")
-                                rotatedImg = pygame.transform.rotate(leftCardImg, 270)
-                                imgPos = (25, WINDOW_HEIGHT/2 - totalWidth/2 + 30 + 20 * i)
-                                leftPlayerCards.append((rotatedImg, imgPos))
-                        if player["name"] == "John":
-                            totalWidth = getCardListWidth(len(player["hand"]))
-                            for i in range(len(player["hand"])):
-                                rightCardImg = pygame.image.load("./images/" + player["hand"][i].replace(" ", "") + ".png")
-                                rotatedImg = pygame.transform.rotate(rightCardImg, 90)
-                                imgPos = (858, WINDOW_HEIGHT/2 + totalWidth/2 + 30 - rightCardImg.get_width() - 20 * i)
-                                rightPlayerCards.append((rotatedImg, imgPos))
-
+                if basic.actionType == aType.INIT:
+                    if self.game_status["action_success"]:
+                        (myCards,leftPlayerCards,rightPlayerCards) = renderHandCards(WINDOW_WIDTH,WINDOW_HEIGHT,self.game_status["players"])
                     if basic.init_time == 0:
                         basic.init_time = current_time
                     else:
                         if current_time - basic.init_time >= 500:
                             basic.init_time = current_time
-                            if len(basic.allHandCard["Me"]) == 0:
-                                basic.allHandCard["Me"] = myCards
-                            elif len(basic.allHandCard["Grace"]) == 0:
-                                basic.allHandCard["Grace"] = leftPlayerCards
-                            elif len(basic.allHandCard["John"]) == 0:
-                                basic.allHandCard["John"] = rightPlayerCards
-                                basic.actionType = "select_action"
-
+                            if len(basic.allHandCard[0]) == 0:
+                                basic.allHandCard[0] = myCards
+                            elif len(basic.allHandCard[1]) == 0:
+                                basic.allHandCard[1] = leftPlayerCards
+                            elif len(basic.allHandCard[2]) == 0:
+                                basic.allHandCard[2] = rightPlayerCards
+                                basic.actionType = aType.SELECT_ACTION
                 tempArr = []
                 for item in basic.allHandCard.values():
                     tempArr += item
-                # screen.blits(e for item in handCardInit for e in item)
                 screen.blits(tempArr)
 
-                # for item in basic.allHandCard["Me"]:
-                #     print(item[0].get_rect(topleft = item[1]))
+                if basic.actionType == aType.SELECT_ACTION:
+                    print("basic.actionNum---",basic.actionNum)
+                    if skipButt.clickable:
+                        skipButt.draw(screen)
+                    if basic.actionNum["draw"] == 0:
+                        drawButt.draw(screen)
+                    if basic.actionNum["steal"] == 0:
+                        for stealButt in stealButtArr:
+                            stealButt.draw(screen)
 
-
-
-                if basic.actionType == "select_action":
-                    drawButt_deck.draw(screen)
-                    drawButt_player1.draw(screen)
-                    drawButt_player2.draw(screen)
-
-                if basic.actionType == "draw_from_deck":
-                    drawButt_deck.draw(screen)
+                if basic.actionType == aType.DRAW:
+                    drawButt.draw(screen)
                     completeButt_deck.draw(screen)
-                    if basic.currentPlayer == "Me":
+                    if basic.currentPlayer == 0:
                         totalWidth = getDrawnCardWidth(basic.drawnDeckNum)
                         for i in range(basic.drawnDeckNum):
                             imgPos = (WINDOW_WIDTH / 2 - totalWidth / 2 + 100 * i, 430)
                             screen.blit(img.cardback, imgPos)
 
-                if basic.actionType == "show_card":
-                    for player in getData()["players"]:
-                        if player["name"] == "Me":
-                            totalWidth = getDrawnCardWidth(len(player["add"]))
-                            for i in range(len(player["add"])):
-                                showcardImg = pygame.image.load("./images/" + player["add"][i].replace(" ", "") + ".png")
-                                imgPos = (WINDOW_WIDTH / 2 - totalWidth / 2 + 100 * i, 430)
-                                screen.blit(showcardImg, imgPos)
-                    if basic.showCard_time == 0:
-                        basic.showCard_time = current_time
-                    else:
-                        if current_time - basic.showCard_time >= 2000:
-                            basic.showCard_time = current_time
-                            basic.actionType = "update_hands"
-
-                if basic.actionType == "select_player":
-                    totalWidth = getCardListWidth(len(basic.allHandCard["Grace"]))
-                    for i in range(len(basic.allHandCard["Grace"])):
-                        rotatedImg = pygame.transform.rotate(img.cardback, 270)
-                        imgPos = (25, WINDOW_HEIGHT / 2 - totalWidth / 2 + 30 + 20 * i)
-                        screen.blit(rotatedImg, imgPos)
-                    drawButt_player2.draw(screen)
-
-                if basic.actionType == "draw_from_player":
-                    if basic.currentPlayer == "Me":
-                        showcardImg = pygame.image.load("./images/blue2.png")
-                        imgPos = (WINDOW_WIDTH / 2 - showcardImg.get_width() / 2, 430)
-                        screen.blit(showcardImg, imgPos)
-                        if basic.showCard_time == 0:
-                            basic.showCard_time = current_time
+                if basic.actionType == aType.SHOW:
+                    if self.game_status["action_success"]:
+                        showCardList = renderDrawnCard(WINDOW_WIDTH,WINDOW_HEIGHT,self.game_status["players"],basic.currentPlayer)
+                        screen.blits(showCardList)
+                        if basic.showDrawCard_time == 0:
+                            basic.showDrawCard_time = current_time
                         else:
-                            if current_time - basic.showCard_time >= 2000:
-                                basic.showCard_time = current_time
-                                basic.actionType = "update_hands"
+                            if current_time - basic.showDrawCard_time >= 3000:
+                                basic.showDrawCard_time = current_time
+                                (myCards, leftPlayerCards, rightPlayerCards) = renderHandCards(
+                                    WINDOW_WIDTH, WINDOW_HEIGHT, self.game_status["players"])
+                                basic.allHandCard = {0: myCards, 1: leftPlayerCards, 2: rightPlayerCards}
+                                basic.actionNum["draw"] = 1
+                                basic.actionType = aType.SELECT_ACTION
 
-                if basic.actionType == "select_discard_card":
-                    if basic.currentPlayer == "Me":
-                        discardButt_player1.draw(screen)
+                if basic.actionType == aType.SELECT_PLAYER:
+                    handLength = len(basic.allHandCard[basic.selectPlayer])
+                    totalWidth = getCardListWidth(handLength)
+                    for i in range(handLength):
+                        if basic.selectPlayer == 1:
+                            rotatedImg = pygame.transform.rotate(img.cardback, 270)
+                            imgPos = (25, WINDOW_HEIGHT / 2 - totalWidth / 2 + 15 + 20 * i)
+                            screen.blit(rotatedImg, imgPos)
+                        elif basic.selectPlayer == 2:
+                            rotatedImg = pygame.transform.rotate(img.cardback, 90)
+                            imgPos = (858, WINDOW_HEIGHT / 2 + totalWidth / 2 + 15 - rotatedImg.get_height() - 20 * i)
+                            screen.blit(rotatedImg, imgPos)
+                    stealButtArr[basic.selectPlayer-1].draw(screen)
+
+                if basic.actionType == aType.STEAL:
+                    if self.game_status["action_success"]:
+                        showCardList = renderDrawnCard(WINDOW_WIDTH, WINDOW_HEIGHT, self.game_status["players"], basic.currentPlayer)
+                        screen.blits(showCardList)
+                        if basic.showDrawCard_time == 0:
+                            basic.showDrawCard_time = current_time
+                        else:
+                            if current_time - basic.showDrawCard_time >= 3000:
+                                basic.showDrawCard_time = current_time
+                                (myCards,leftPlayerCards,rightPlayerCards) = renderHandCards(WINDOW_WIDTH,WINDOW_HEIGHT,self.game_status["players"])
+                                basic.allHandCard = {0: myCards, 1: leftPlayerCards, 2: rightPlayerCards}
+                                basic.actionType = aType.UPDATE
+                        basic.actionNum["steal"] = 1
+                        if basic.actionNum["draw"] == 0:
+                            drawButt.draw(screen)
+
+                if basic.actionType == aType.SELECT_DISCARD:
+                    if basic.currentPlayer == 0:
+                        discardButt.draw(screen)
                     totalWidth = getCardListWidth(len(basic.drawnDiscard))
-                    for i in range(len(basic.drawnDiscard)):
+                    drawnDiscardList = list(basic.drawnDiscard)
+                    for i in range(len(drawnDiscardList)):
                         imgPos = (WINDOW_WIDTH / 2 - totalWidth / 2 + 20 * i, 430)
-                        screen.blit(basic.drawnDiscard[i][0],imgPos)
+                        screen.blit(drawnDiscardList[i][0],imgPos)
 
+                if basic.actionType == aType.DISCARD:
+                    if self.game_status["action_success"]:
+                        basic.drawnDiscard.clear()
+                        (myCards, leftPlayerCards, rightPlayerCards) = renderHandCards(WINDOW_WIDTH,WINDOW_HEIGHT,self.game_status["players"])
+                        basic.allHandCard = {0: myCards, 1: leftPlayerCards, 2: rightPlayerCards}
+                        basic.actionType = aType.UPDATE
+                    else:
+                        basic.drawnDiscard.clear()
 
+                if basic.actionType == aType.SKIP:
+                    print("self.game_status---", self.game_status)
+                    if self.game_status['next_player'] != -1:
+                        # if self.game_status['next_player'] == 0:
+                        #     basic.actionType = aType.NEXT
+                        next_player = self.game_status['next_player']
+                        while True:
+                            self.nottygame.ai_take_action(next_player)
+                            if self.game_status['type'] == self.nottygame.GameActions.SKIP:
+                                break
 
 
 
@@ -247,26 +251,27 @@ class GUI:
                 if event.type == pygame.QUIT:
                     active = False
                     self.nottygame.end_game()
-
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     # mousePos = pygame.mouse.get_pos()
                     if event.button == 1:    # mouse left button
-                        if playButt.rect.collidepoint(event.pos):
+                        if playButt.rect.collidepoint(event.pos) and playButt.clickable:
                             if musicOn:
                                 sound.click.play()
                                 basic.play_page = "GAME"
-                        if instructButt.rect.collidepoint(event.pos):
+                                instructButt.clickable = False
+                        if instructButt.rect.collidepoint(event.pos) and instructButt.clickable:
                             if musicOn:
                                 sound.click.play()
                                 basic.play_page = "INFO"
-                        if backButt.rect.collidepoint(event.pos):
+                        if backButt.rect.collidepoint(event.pos) and backButt.clickable:
                             if basic.play_page == "GAME" or basic.play_page == "INFO":
                                 if musicOn:
                                     sound.click.play()
                                 if basic.play_page == "GAME":
                                     reset(basic)
                                 basic.play_page = "HOME"
-                        if muteButt.rect.collidepoint(event.pos) or unmuteButt.rect.collidepoint(event.pos):
+                        if ((muteButt.rect.collidepoint(event.pos) and muteButt.clickable)
+                                or (unmuteButt.rect.collidepoint(event.pos)) and unmuteButt.clickable):
                             if musicOn:
                                 sound.click.play()
                                 pygame.mixer.music.pause()
@@ -284,43 +289,73 @@ class GUI:
                                 if musicOn:
                                     sound.click.play()
                                 toggleDifficulty(basic, 1)
-                        if startButt.rect.collidepoint(event.pos):
+                        # deal cards
+                        if startButt.rect.collidepoint(event.pos) and startButt.clickable:
                             if musicOn:
                                 sound.click.play()
-                            # deal cards
                             self.nottygame.send_action(self.nottygame.GameActions.DEAL)
-                            # self.game_status = self.nottygame.render_queue.get()
-                            basic.actionType = "card_init"
-                        if drawButt_deck.rect.collidepoint(event.pos):
-                            if musicOn:
-                                sound.click.play()
-                            basic.drawnDeckNum += 1
-                            basic.actionType = "draw_from_deck"
-                        if completeButt_deck.rect.collidepoint(event.pos):
-                            if musicOn:
-                                sound.click.play()
-                            basic.actionType = "show_card"
-                        if drawButt_player1.rect.collidepoint(event.pos):
-                            if musicOn:
-                                sound.click.play()
-                            if basic.actionType == "select_player":
-                                basic.actionType = "draw_from_player"
+                            startButt.clickable = False
+                            basic.actionType = aType.INIT
+                        # draw cards
+                        if drawButt.rect.collidepoint(event.pos) and drawButt.clickable:
+                            if basic.drawnDeckNum < 3:
+                                if musicOn:
+                                    sound.click.play()
+                                basic.drawnDeckNum += 1
+                                basic.actionType = aType.DRAW
                             else:
-                                basic.actionType = "select_player"
-                        if discardButt_player1.rect.collidepoint(event.pos):
+                                drawButt.clickable = False
+                            for stealButt in stealButtArr:
+                                stealButt.clickable = False
+                        # complete draw action
+                        if completeButt_deck.rect.collidepoint(event.pos) and completeButt_deck.clickable:
+                            if basic.drawnDeckNum > 0:
+                                if musicOn:
+                                    sound.click.play()
+                                self.nottygame.send_action(self.nottygame.GameActions.DRAW, basic.currentPlayer, basic.drawnDeckNum)
+                                drawButt.clickable = False
+                                completeButt_deck.clickable = False
+                                basic.actionType = aType.SHOW
+                        # select player and draw from player(steal)
+                        for i in range(len(stealButtArr)):
+                            if stealButtArr[i].rect.collidepoint(event.pos) and stealButtArr[i].clickable:
+                                if musicOn:
+                                    sound.click.play()
+                                basic.selectPlayer = i+1
+                                drawButt.clickable = False
+                                if basic.actionType == aType.SELECT_PLAYER:
+                                    self.nottygame.send_action(self.nottygame.GameActions.STEAL, basic.currentPlayer, basic.selectPlayer)
+                                    stealButtArr[basic.selectPlayer-1].clickable = False
+                                    basic.actionType = aType.STEAL
+                                else:
+                                    if basic.selectPlayer == 1:
+                                        stealButtArr[1].clickable = False
+                                    elif basic.selectPlayer == 2:
+                                        stealButtArr[0].clickable = False
+                                    basic.actionType = aType.SELECT_PLAYER
+                        # my card click
+                        for i in range(len(basic.allHandCard[0])):
+                            item = basic.allHandCard[0][i]
+                            itemWidth = 85 if i == len(basic.allHandCard[0])-1 else 20
+                            itemRect = item[0].get_rect(topleft=item[1], width=itemWidth)
+                            if itemRect.collidepoint(event.pos):
+                                basic.drawnDiscard.add(item)
+                                drawButt.clickable = False
+                                for stealButt in stealButtArr:
+                                    stealButt.clickable = False
+                                basic.actionType = aType.SELECT_DISCARD
+                        # discard my card
+                        if discardButt.rect.collidepoint(event.pos) and discardButt.clickable:
                             if musicOn:
                                 sound.click.play()
-                            basic.drawnDiscard = []
-                        # my card click
-                        for i in range(len(basic.allHandCard["Me"])):
-                            item = basic.allHandCard["Me"][i]
-                            itemWidth = 85 if i == len(basic.allHandCard["Me"])-1 else 20
-                            itemRect = item[0].get_rect(topleft=item[1], width= itemWidth)
-                            if itemRect.collidepoint(event.pos):
-                                basic.drawnDiscard.append(item)
-                                basic.actionType = "select_discard_card"
-
-
+                            self.nottygame.send_action(self.nottygame.GameActions.DISCARD, basic.currentPlayer, basic.drawnDiscard)
+                            basic.actionType = aType.DISCARD
+                        # skip
+                        if skipButt.rect.collidepoint(event.pos) and skipButt.clickable:
+                            if musicOn:
+                                sound.click.play()
+                            self.nottygame.send_action(self.nottygame.GameActions.SKIP, basic.currentPlayer)
+                            basic.actionType = aType.SKIP
 
 
             pygame.display.update()
