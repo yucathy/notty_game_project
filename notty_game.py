@@ -186,9 +186,8 @@ class NottyGame:
                         next_player = self.user_id
 
                     self.ai_actions_pool = [action for action in self.GameActions \
-                    if action != self.excluded_action1]
+                    if action != self.GameActions.DEAL]
                         
-
                 self.update_status(user_action, action_success, active_status, next_player)
 
                 # self.callback(copy.deepcopy(self.game_status))
@@ -212,12 +211,12 @@ class NottyGame:
             draw_card_number = random.randint(1, self.max_draw_times_per_turn)
             self.send_action(random_action, current_ai_id, draw_card_number)
         elif random_action == self.GameActions.STEAL:
-            candidate = [p for p in self.players if p != self.players[current_ai_id] \
-                         and len(p.hand) > 1]
-            if candidate:
-                target = random.choice(candidate)
-                print(target)
-                self.send_action(random_action, current_ai_id, target)
+            candidate_idx = [idx for idx in range(len(self.players)) if idx != current_ai_id \
+                         and len(self.players[idx].hand) > 1]
+            if candidate_idx:
+                target_idx = random.choice(candidate_idx)
+                print(target_idx)
+                self.send_action(random_action, current_ai_id, target_idx)
         elif random_action == self.GameActions.DISCARD:
             discarded_cards = self.players[current_ai_id].find_largest_valid_group()
             if discarded_cards:
