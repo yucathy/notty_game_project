@@ -162,13 +162,17 @@ class NottyGame:
                         action_success = False
 
                 elif user_action == self.GameActions.DISCARD:
+                    if type(user_info) == set:
+                        user_info = list(user_info)
                     if type(user_info) == list:
                         current_player = self.players[action_user_id]
                         if(current_player.discard_group(user_info, self.deck)):
+                            print("wwwww")
                             active_status[action_user_id] = True
                             if self.players[action_user_id].has_empty_hand():
                                 self.winner = self.players[action_user_id].name
                         else:
+                            print("ggggg")
                             action_success = False
                     else:
                         action_success = False
