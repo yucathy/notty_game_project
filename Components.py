@@ -19,11 +19,12 @@ class BasicComponent(object):
             "draw": 0,
             "steal": 0
         }
+        self.currentAIAction = ""
         self.init_time = 0
         self.showDrawCard_time = 0
         self.showStealCard_time = 0
         self.showDiscard_time = 0
-        self.showMessage_time = 0
+        self.showSkip_time = 0
 
 
 class ActionType(object):

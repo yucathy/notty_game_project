@@ -80,14 +80,26 @@ def updateHandCard(basic,myCards,leftPlayerCards,rightPlayerCards):
 def renderDrawnCard(w,h,playerList,currentPlayer):
     showCardList = []
     shownPlayer = playerList[currentPlayer]
+    myAddList = shownPlayer["add"]
+    addLength = len(myAddList)
+    totalWidth = getDrawnCardWidth(addLength)
     if currentPlayer == 0:
-        myAddList = shownPlayer["add"]
-        addLength = len(myAddList)
-        totalWidth = getDrawnCardWidth(addLength)
         for i in range(addLength):
             showcardImg = pygame.image.load("./images/" + str(myAddList[i]).lower().replace(" ", "") + ".png")
             imgPos = (w / 2 - totalWidth / 2 + 100 * i, 430)
             showCardList.append((showcardImg, imgPos))
+    elif currentPlayer == 1:
+        for i in range(addLength):
+            showcardImg = pygame.image.load("./images/" + str(myAddList[i]).lower().replace(" ", "") + ".png")
+            rotatedImg = pygame.transform.rotate(showcardImg, 270)
+            imgPos = (170, h / 2 - totalWidth / 2 + 15 + 100 * i)
+            showCardList.append((rotatedImg, imgPos))
+    elif currentPlayer == 2:
+        for i in range(addLength):
+            showcardImg = pygame.image.load("./images/" + str(myAddList[i]).lower().replace(" ", "") + ".png")
+            rotatedImg = pygame.transform.rotate(showcardImg, 90)
+            imgPos = (720, h / 2 + totalWidth / 2 + 15 - rotatedImg.get_height() - 100 * i)
+            showCardList.append((rotatedImg, imgPos))
     return showCardList
 
 def renderSysFont(font,size,text,color,pos):
@@ -96,16 +108,17 @@ def renderSysFont(font,size,text,color,pos):
     fontRect.topleft = pos
     return [fontObj,fontRect]
 
-def renderMessage(screen,w,basic,type,turn=1,currentPlayer=0,cards=[]):
+def renderMessage(screen,w,basic,type,turn=1,currentPlayer=0,cards=[],targetPlayer=0):
     playerName = basic.players[currentPlayer]
+    targetPlayerName = basic.players[targetPlayer]
     cardStr = ",".join([str(e) for e in cards])
     actionMessage = {
-        "select_action": f"Round{turn}: Select one action",
-        "show_card": f"Round{turn}: {playerName} has drawn {cardStr}",
-        "draw_from_player": f"Round{turn}: {playerName} has drawn {cardStr}",
+        "select_action": f"Round{turn}: Select one action or skip directly",
+        "show_card": f"Round{turn}: {playerName} has drawn {cardStr} from deck",
+        "draw_from_player": f"Round{turn}: {playerName} has drawn {cardStr} from {targetPlayerName}",
         "discard_suc": f"Round{turn}: {playerName} has discarded {cardStr}",
         "discard_fail": "Not a valid group! Please select again",
-        # "skip": f"Round{turn}: {playerName} skipped"
+        "skip": f"Round{turn}: {playerName} skipped"
     }
     text = actionMessage[type]
     font = pygame.font.SysFont('arial', 20)
@@ -114,12 +127,15 @@ def renderMessage(screen,w,basic,type,turn=1,currentPlayer=0,cards=[]):
     pos = (w/2-text_width/2, 30)
     screen.blit(text_surface, pos)
 
-    # if basic.showMessage_time == 0:
-    #     basic.showMessage_time = currentTime
-    # else:
-    #     if currentTime - basic.showMessage_time >= 4000:
-    #         basic.showMessage_time = currentTime
-    #         text_surface = None
+def doAIAction(basic, aType, currentAIAction):
+    if currentAIAction == 'draw':
+        basic.actionType = aType.SHOW
+    elif currentAIAction == 'steal':
+        basic.actionType = aType.STEAL
+    elif currentAIAction == 'discard':
+        basic.actionType = aType.DISCARD
+    elif currentAIAction == 'skip':
+        basic.actionType = aType.SKIP
 
 
 

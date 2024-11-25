@@ -1,3 +1,5 @@
+import time
+
 from Components import *
 from Functions import *
 import queue
@@ -84,16 +86,19 @@ class GUI:
             clock.tick(30)
             screen.fill((202,228,241))
             current_time = pygame.time.get_ticks()
-
-            if not self.nottygame.render_queue.empty():
-                self.game_status = self.nottygame.render_queue.get(timeout = 0.033)
-            # print("self.game_status---",self.game_status)
-            # print("basic.allHandCard----", basic.allHandCard)
-
             if musicOn:
                 muteButt.draw(screen)
             else:
                 unmuteButt.draw(screen)
+
+            if not self.nottygame.render_queue.empty():
+                self.game_status = self.nottygame.render_queue.get(timeout = 0.033)
+                print("self.game_status---",self.game_status)
+                # print("basic.allHandCard----", basic.allHandCard)
+
+                # AI player start doing...
+                if basic.currentPlayer != 0:
+                    doAIAction(basic,aType,self.game_status['type'].value)
 
             if basic.play_page == "HOME":
                 playButt.draw(screen)
@@ -159,7 +164,12 @@ class GUI:
 
                 if basic.actionType == aType.SELECT_ACTION:
                     # print("basic.actionNum---",basic.actionNum)
-                    renderMessage(screen,WINDOW_WIDTH,basic,aType.SELECT_ACTION,self.game_status["turns_count"])
+                    # AI player next action...
+                    if basic.currentPlayer != 0:
+                        if self.game_status['next_player'] == -1 and self.game_status['type'].value != "skip":
+                            self.nottygame.ai_take_action(next_player)
+                    else:
+                        renderMessage(screen,WINDOW_WIDTH,basic,aType.SELECT_ACTION,self.game_status["turns_count"])
                     if skipButt.clickable:
                         skipButt.draw(screen)
                     if basic.actionNum["draw"] == 0:
@@ -170,7 +180,11 @@ class GUI:
                         for stealButt in stealButtArr:
                             stealButt.draw(screen)
                             stealButt.clickable = True
+                    basic.showDrawCard_time = 0
+                    basic.showStealCard_time = 0
                     basic.showDiscard_time = 0
+                    basic.showSkip_time = 0
+
 
                 if basic.actionType == aType.DRAW:
                     drawButt.draw(screen)
@@ -217,7 +231,7 @@ class GUI:
                         showCardList = renderDrawnCard(WINDOW_WIDTH, WINDOW_HEIGHT, self.game_status["players"], basic.currentPlayer)
                         screen.blits(showCardList)
                         renderMessage(screen, WINDOW_WIDTH, basic, aType.STEAL, self.game_status["turns_count"],basic.currentPlayer,
-                                      self.game_status["players"][basic.currentPlayer]["add"])
+                                      self.game_status["players"][basic.currentPlayer]["add"],basic.selectPlayer)
                         if basic.showStealCard_time == 0:
                             basic.showStealCard_time = current_time
                         else:
@@ -257,21 +271,24 @@ class GUI:
                             basic.actionType = aType.SELECT_ACTION
 
                 if basic.actionType == aType.SKIP:
-                    if self.game_status['next_player'] != -1:
-                        next_player = self.game_status['next_player']
-                        if next_player == 0:
-                            basic.actionType = aType.SELECT_ACTION
-                        else:
-                            while True:
-                                self.nottygame.ai_take_action(next_player)
-                                try:
-                                    self.game_status = self.nottygame.render_queue.get(timeout=0.033)
-                                except queue.Empty:
-                                    continue
-                                # print("self.game_status---", self.game_status)
-                                if self.game_status['type'] == self.nottygame.GameActions.SKIP:
-                                    break
-
+                    basic.actionNum = {
+                        "draw": 0,
+                        "steal": 0
+                    }
+                    renderMessage(screen, WINDOW_WIDTH, basic, aType.SKIP, self.game_status["turns_count"], basic.currentPlayer)
+                    if basic.showSkip_time == 0:
+                        basic.showSkip_time = current_time
+                    else:
+                        if current_time - basic.showSkip_time >= 2000:
+                            basic.showSkip_time = current_time
+                            if self.game_status['next_player'] != -1:
+                                next_player = self.game_status['next_player']
+                                basic.currentPlayer = next_player
+                                if next_player == 0:  # return to me and enter next round
+                                    basic.actionType = aType.SELECT_ACTION
+                                else:
+                                    # AI player start...
+                                    self.nottygame.ai_take_action(next_player)
 
 
 
@@ -390,10 +407,6 @@ class GUI:
                             if musicOn:
                                 sound.click.play()
                             self.nottygame.send_action(self.nottygame.GameActions.SKIP, basic.currentPlayer)
-                            basic.actionNum = {
-                                "draw": 0,
-                                "steal": 0
-                            }
                             basic.drawnDeckNum = 0
                             basic.actionType = aType.SKIP
 
