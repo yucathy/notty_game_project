@@ -1,6 +1,7 @@
 from Components import *
 from Functions import *
 import queue
+import Card
 
 class GUI:
     def __init__(self,nottygame):
@@ -28,7 +29,7 @@ class GUI:
         # pygame.mixer.music.set_volume(0.3)      # volume
 
         self.nottygame.setup(3, ['You', 'Grace', 'John'], self.nottygame.ComputerLevel.EASY)   # name can be None.
-        self.nottygame.start_game()
+        # self.nottygame.start_game()
 
         # play/instruction button
         playImg = img.play.convert_alpha()
@@ -87,7 +88,7 @@ class GUI:
             if not self.nottygame.render_queue.empty():
                 self.game_status = self.nottygame.render_queue.get(timeout = 0.033)
             # print("self.game_status---",self.game_status)
-            # print("basic.allHandCard----",len(basic.allHandCard[0]), basic.allHandCard)
+            # print("basic.allHandCard----", basic.allHandCard)
 
             if musicOn:
                 muteButt.draw(screen)
@@ -98,15 +99,15 @@ class GUI:
                 playButt.draw(screen)
                 instructButt.draw(screen)
                 # player and difficulty
-                if basic.playerList[0]["level"] == "Easy":
-                    fontLevel0 = renderSysFont("Arial", 50, "Easy", (255, 238, 46), (220, 300))
-                else:
-                    fontLevel0 = renderSysFont("Arial", 50, "Hard", (255, 238, 46), (220, 300))
-                if basic.playerList[1]["level"] == "Easy":
-                    fontLevel1 = renderSysFont("Arial", 50, "Easy", (255, 238, 46), (220, 400))
-                else:
-                    fontLevel1 = renderSysFont("Arial", 50, "Hard", (255, 238, 46), (220, 400))
-                screen.blits((fontName0,fontLevel0,fontLeft0,fontRight0,fontName1,fontLevel1,fontLeft1,fontRight1))
+                # if basic.playerList[0]["level"] == "Easy":
+                #     fontLevel0 = renderSysFont("Arial", 50, "Easy", (255, 238, 46), (220, 300))
+                # else:
+                #     fontLevel0 = renderSysFont("Arial", 50, "Hard", (255, 238, 46), (220, 300))
+                # if basic.playerList[1]["level"] == "Easy":
+                #     fontLevel1 = renderSysFont("Arial", 50, "Easy", (255, 238, 46), (220, 400))
+                # else:
+                #     fontLevel1 = renderSysFont("Arial", 50, "Hard", (255, 238, 46), (220, 400))
+                # screen.blits((fontName0,fontLevel0,fontLeft0,fontRight0,fontName1,fontLevel1,fontLeft1,fontRight1))
 
             elif basic.play_page == "INFO":
                 backButt.draw(screen)
@@ -139,31 +140,37 @@ class GUI:
                     if basic.init_time == 0:
                         basic.init_time = current_time
                     else:
-                        if current_time - basic.init_time >= 500:
+                        if current_time - basic.init_time >= 600:
                             basic.init_time = current_time
-                            if len(basic.allHandCard[0]) == 0:
-                                basic.allHandCard[0] = myCards
-                            elif len(basic.allHandCard[1]) == 0:
-                                basic.allHandCard[1] = leftPlayerCards
-                            elif len(basic.allHandCard[2]) == 0:
-                                basic.allHandCard[2] = rightPlayerCards
+                            if len(basic.allHandCard[0]["surfaces"]) == 0:
+                                basic.allHandCard[0]["surfaces"] = [item[0] for item in myCards]
+                                basic.allHandCard[0]["cards"] = [item[1] for item in myCards]
+                            elif len(basic.allHandCard[1]["surfaces"]) == 0:
+                                basic.allHandCard[1]["surfaces"] = [item[0] for item in leftPlayerCards]
+                                basic.allHandCard[1]["cards"] = [item[1] for item in leftPlayerCards]
+                            elif len(basic.allHandCard[2]["surfaces"]) == 0:
+                                basic.allHandCard[2]["surfaces"] = [item[0] for item in rightPlayerCards]
+                                basic.allHandCard[2]["cards"] = [item[1] for item in rightPlayerCards]
                                 basic.actionType = aType.SELECT_ACTION
                 tempArr = []
                 for item in basic.allHandCard.values():
-                    tempArr += item
+                    tempArr += item["surfaces"]
                 screen.blits(tempArr)
 
                 if basic.actionType == aType.SELECT_ACTION:
                     # print("basic.actionNum---",basic.actionNum)
+                    renderMessage(screen,WINDOW_WIDTH,basic,aType.SELECT_ACTION,self.game_status["turns_count"])
                     if skipButt.clickable:
                         skipButt.draw(screen)
                     if basic.actionNum["draw"] == 0:
                         drawButt.draw(screen)
                         drawButt.clickable = True
+                        completeButt.clickable = True
                     if basic.actionNum["steal"] == 0:
                         for stealButt in stealButtArr:
                             stealButt.draw(screen)
                             stealButt.clickable = True
+                    basic.showDiscard_time = 0
 
                 if basic.actionType == aType.DRAW:
                     drawButt.draw(screen)
@@ -178,6 +185,8 @@ class GUI:
                     if self.game_status["action_success"]:
                         showCardList = renderDrawnCard(WINDOW_WIDTH,WINDOW_HEIGHT,self.game_status["players"],basic.currentPlayer)
                         screen.blits(showCardList)
+                        renderMessage(screen, WINDOW_WIDTH, basic, aType.SHOW, self.game_status["turns_count"], basic.currentPlayer,
+                                      self.game_status["players"][basic.currentPlayer]["add"])
                         if basic.showDrawCard_time == 0:
                             basic.showDrawCard_time = current_time
                         else:
@@ -185,12 +194,12 @@ class GUI:
                                 basic.showDrawCard_time = current_time
                                 (myCards, leftPlayerCards, rightPlayerCards) = renderHandCards(
                                     WINDOW_WIDTH, WINDOW_HEIGHT, self.game_status["players"])
-                                basic.allHandCard = {0: myCards, 1: leftPlayerCards, 2: rightPlayerCards}
+                                updateHandCard(basic, myCards, leftPlayerCards, rightPlayerCards)
                                 basic.actionNum["draw"] = 1
                                 basic.actionType = aType.SELECT_ACTION
 
                 if basic.actionType == aType.SELECT_PLAYER:
-                    handLength = len(basic.allHandCard[basic.selectPlayer])
+                    handLength = len(basic.allHandCard[basic.selectPlayer]["surfaces"])
                     totalWidth = getCardListWidth(handLength)
                     for i in range(handLength):
                         if basic.selectPlayer == 1:
@@ -207,41 +216,51 @@ class GUI:
                     if self.game_status["action_success"]:
                         showCardList = renderDrawnCard(WINDOW_WIDTH, WINDOW_HEIGHT, self.game_status["players"], basic.currentPlayer)
                         screen.blits(showCardList)
+                        renderMessage(screen, WINDOW_WIDTH, basic, aType.STEAL, self.game_status["turns_count"],basic.currentPlayer,
+                                      self.game_status["players"][basic.currentPlayer]["add"])
                         if basic.showStealCard_time == 0:
                             basic.showStealCard_time = current_time
                         else:
                             if current_time - basic.showStealCard_time >= 3000:
                                 basic.showStealCard_time = current_time
                                 (myCards,leftPlayerCards,rightPlayerCards) = renderHandCards(WINDOW_WIDTH,WINDOW_HEIGHT,self.game_status["players"])
-                                basic.allHandCard = {0: myCards, 1: leftPlayerCards, 2: rightPlayerCards}
+                                updateHandCard(basic, myCards, leftPlayerCards, rightPlayerCards)
+                                basic.actionNum["steal"] = 1
                                 basic.actionType = aType.SELECT_ACTION
-                        basic.actionNum["steal"] = 1
-                        if basic.actionNum["draw"] == 0:
-                            drawButt.draw(screen)
 
                 if basic.actionType == aType.SELECT_DISCARD:
                     if basic.currentPlayer == 0:
                         discardButt.draw(screen)
-                    totalWidth = getCardListWidth(len(basic.drawnDiscard))
-                    drawnDiscardList = list(basic.drawnDiscard)
+                    totalWidth = getCardListWidth(len(basic.drawnDiscard_surface))
+                    drawnDiscardList = list(basic.drawnDiscard_surface)
                     for i in range(len(drawnDiscardList)):
                         imgPos = (WINDOW_WIDTH / 2 - totalWidth / 2 + 20 * i, 430)
                         screen.blit(drawnDiscardList[i][0],imgPos)
 
                 if basic.actionType == aType.DISCARD:
                     if self.game_status["action_success"]:
-                        basic.drawnDiscard.clear()
+                        basic.drawnDiscard_surface.clear()
+                        basic.drawnDiscard_card.clear()
                         (myCards, leftPlayerCards, rightPlayerCards) = renderHandCards(WINDOW_WIDTH,WINDOW_HEIGHT,self.game_status["players"])
-                        basic.allHandCard = {0: myCards, 1: leftPlayerCards, 2: rightPlayerCards}
+                        updateHandCard(basic,myCards, leftPlayerCards, rightPlayerCards)
+                        renderMessage(screen, WINDOW_WIDTH, basic, aType.DISCARD+"_suc", self.game_status["turns_count"],basic.currentPlayer,
+                                      self.game_status["players"][basic.currentPlayer]["delete"])
                     else:
-                        basic.drawnDiscard.clear()
-                    basic.actionType = aType.SELECT_ACTION
+                        basic.drawnDiscard_surface.clear()
+                        basic.drawnDiscard_card.clear()
+                        renderMessage(screen, WINDOW_WIDTH, basic, aType.DISCARD+"_fail", self.game_status["turns_count"],basic.currentPlayer)
+                    if basic.showDiscard_time == 0:
+                        basic.showDiscard_time = current_time
+                    else:
+                        if current_time - basic.showDiscard_time >= 2000:
+                            basic.showDiscard_time = current_time
+                            basic.actionType = aType.SELECT_ACTION
 
                 if basic.actionType == aType.SKIP:
                     if self.game_status['next_player'] != -1:
                         next_player = self.game_status['next_player']
                         if next_player == 0:
-                            basic.actionType = aType.NEXT
+                            basic.actionType = aType.SELECT_ACTION
                         else:
                             while True:
                                 self.nottygame.ai_take_action(next_player)
@@ -249,7 +268,7 @@ class GUI:
                                     self.game_status = self.nottygame.render_queue.get(timeout=0.033)
                                 except queue.Empty:
                                     continue
-                                print("self.game_status---", self.game_status)
+                                # print("self.game_status---", self.game_status)
                                 if self.game_status['type'] == self.nottygame.GameActions.SKIP:
                                     break
 
@@ -267,6 +286,8 @@ class GUI:
                             if musicOn:
                                 sound.click.play()
                                 basic.play_page = "GAME"
+                                self.nottygame.start_game()
+                                startButt.clickable = True
                                 instructButt.clickable = False
                         if instructButt.rect.collidepoint(event.pos) and instructButt.clickable:
                             if musicOn:
@@ -278,6 +299,7 @@ class GUI:
                                     sound.click.play()
                                 if basic.play_page == "GAME":
                                     reset(basic)
+                                    self.nottygame.end_game()
                                 basic.play_page = "HOME"
                         if ((muteButt.rect.collidepoint(event.pos) and muteButt.clickable)
                                 or (unmuteButt.rect.collidepoint(event.pos)) and unmuteButt.clickable):
@@ -288,16 +310,16 @@ class GUI:
                             else:
                                 pygame.mixer.music.unpause()
                                 musicOn = True
-                        if fontLeft0[1].collidepoint(event.pos) or fontRight0[1].collidepoint(event.pos):
-                            if pygame.mouse.get_pressed()[0] == 1:
-                                if musicOn:
-                                    sound.click.play()
-                                toggleDifficulty(basic,0)
-                        if fontLeft1[1].collidepoint(event.pos) or fontRight1[1].collidepoint(event.pos):
-                            if pygame.mouse.get_pressed()[0] == 1:
-                                if musicOn:
-                                    sound.click.play()
-                                toggleDifficulty(basic, 1)
+                        # if fontLeft0[1].collidepoint(event.pos) or fontRight0[1].collidepoint(event.pos):
+                        #     if pygame.mouse.get_pressed()[0] == 1:
+                        #         if musicOn:
+                        #             sound.click.play()
+                        #         toggleDifficulty(basic,0)
+                        # if fontLeft1[1].collidepoint(event.pos) or fontRight1[1].collidepoint(event.pos):
+                        #     if pygame.mouse.get_pressed()[0] == 1:
+                        #         if musicOn:
+                        #             sound.click.play()
+                        #         toggleDifficulty(basic, 1)
                         # deal cards
                         if startButt.rect.collidepoint(event.pos) and startButt.clickable:
                             if musicOn:
@@ -343,13 +365,16 @@ class GUI:
                                         stealButtArr[0].clickable = False
                                     basic.actionType = aType.SELECT_PLAYER
                         # my card click
-                        for i in range(len(basic.allHandCard[0])):
-                            item = basic.allHandCard[0][i]
-                            itemWidth = 85 if i == len(basic.allHandCard[0])-1 else 20
-                            itemRect = item[0].get_rect(topleft=item[1], width=itemWidth)
+                        cardsLength = len(basic.allHandCard[0]["surfaces"])
+                        for i in range(cardsLength):
+                            item_surface = basic.allHandCard[0]["surfaces"][i]
+                            item_card = basic.allHandCard[0]["cards"][i]
+                            itemWidth = 85 if i == cardsLength-1 else 20
+                            itemRect = item_surface[0].get_rect(topleft=item_surface[1], width=itemWidth)
                             if itemRect.collidepoint(event.pos):
                                 if basic.actionType == aType.SELECT_ACTION or basic.actionType == aType.SELECT_DISCARD:
-                                    basic.drawnDiscard.add(item)
+                                    basic.drawnDiscard_surface.add(item_surface)
+                                    basic.drawnDiscard_card.add(item_card)
                                     drawButt.clickable = False
                                     for stealButt in stealButtArr:
                                         stealButt.clickable = False
@@ -358,13 +383,18 @@ class GUI:
                         if discardButt.rect.collidepoint(event.pos) and discardButt.clickable:
                             if musicOn:
                                 sound.click.play()
-                            self.nottygame.send_action(self.nottygame.GameActions.DISCARD, basic.currentPlayer, basic.drawnDiscard)
+                            self.nottygame.send_action(self.nottygame.GameActions.DISCARD, basic.currentPlayer, basic.drawnDiscard_card)
                             basic.actionType = aType.DISCARD
                         # skip
                         if skipButt.rect.collidepoint(event.pos) and skipButt.clickable:
                             if musicOn:
                                 sound.click.play()
                             self.nottygame.send_action(self.nottygame.GameActions.SKIP, basic.currentPlayer)
+                            basic.actionNum = {
+                                "draw": 0,
+                                "steal": 0
+                            }
+                            basic.drawnDeckNum = 0
                             basic.actionType = aType.SKIP
 
 

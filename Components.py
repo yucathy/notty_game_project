@@ -3,24 +3,18 @@ import pygame
 class BasicComponent(object):
     def __init__(self):
         self.play_page = "HOME"
-        self.playerList = [{
-            "name": "John",
-            "level": "Easy"
-        }, {
-            "name": "Grace",
-            "level": "Hard"
-        }]
+        self.players = ["You","Grace","John"]
         self.actionType = "start"
+        self.currentPlayer = 0  # 0: you, 1: left player, 2: right player
+        self.selectPlayer = 0  # choose a player you want to steal(player 1 or 2)
         self.allHandCard = {         # 0: you, 1: left player, 2: right player
-            0: [],
-            1: [],
-            2: []
+            0: {"surfaces": [], "cards": []},
+            1: {"surfaces": [], "cards": []},
+            2: {"surfaces": [], "cards": []},
         }
-        self.drawnDiscard = set()    # cards you want to discard
-        self.drawnDeckNum = 0        # number of cards drawn from deck
-        self.currentPlayer = 0       # 0: you, 1: left player, 2: right player
-        self.selectPlayer = 0        # choose a player you want to steal(player 1 or 2)
-        # self.mycardClickable = True
+        self.drawnDiscard_surface = set()    # cards you want to discard
+        self.drawnDiscard_card = set()
+        self.drawnDeckNum = 0   # number of cards drawn from deck
         self.actionNum = {
             "draw": 0,
             "steal": 0
@@ -28,6 +22,8 @@ class BasicComponent(object):
         self.init_time = 0
         self.showDrawCard_time = 0
         self.showStealCard_time = 0
+        self.showDiscard_time = 0
+        self.showMessage_time = 0
 
 
 class ActionType(object):
@@ -45,23 +41,6 @@ class ActionType(object):
         self.DISCARD = "discard"
         self.SKIP = "skip"
         self.PLAY_FOR_ME = "play_for_me"
-        self.NEXT = "next_turn"
-        self.actionMessage = {
-            self.START: "Start!",
-            self.SHUFFLE: "Deck Shuffle",
-            self.INIT: "Deal 5 cards to each player",
-            self.SELECT_ACTION: "Select one action type",
-            self.DRAW: "Draw up to 3 cards from the deck",
-            self.SHOW: "Show cards you have drawn",
-            self.UPDATE: "Update your own cards",
-            self.SELECT_PLAYER: "Please select one player",
-            self.STEAL: "Please select one card from player",
-            self.SELECT_DISCARD: "",
-            self.DISCARD: "",
-            self.SKIP: "",
-            self.PLAY_FOR_ME: "",
-            self.NEXT: ""
-        };
 
 
 class Image(object):
