@@ -50,6 +50,8 @@ class Players:
         if self.is_valid_group(group):
             self.delete.clear()
             for card in group:
+                print(self.hand)
+                print(card)
                 self.hand.remove(card)
             deck.add_to_deck(group)
             return True
@@ -61,6 +63,9 @@ class Players:
     def is_valid_group(self, group):
         if len(group) < 3:
             return False
+        
+        group = sorted(group, key=lambda group: group.number)
+
         # 同样颜色连续数字
         if all(card.color == group[0].color for card in group) and \
            all(group[i].number == group[i - 1].number + 1 for i in range(1, len(group))):
