@@ -22,7 +22,6 @@ class Players:
 
     def draw_cards(self, deck, num_cards) -> bool:
         if (len(self.hand) + num_cards) <= self.maxinum_hand_size:
-            self.clear_temp_list()
             cards = deck.draw(num_cards)
             for card in cards:
                 self.add.append(card)
@@ -33,8 +32,6 @@ class Players:
 
     # 从其他玩家手牌中随机取一张卡
     def take_random_card(self, other_player) -> bool:
-        self.clear_temp_list()
-        other_player.clear_temp_list()
         if other_player.hand and (len(self.hand) + 1) <= self.maxinum_hand_size:
             card = random.choice(other_player.hand)
             other_player.delete.append(card)
@@ -46,12 +43,12 @@ class Players:
 
     # 验证卡组是否符合丢弃条件，并更新玩家手牌和牌堆
     def discard_group(self, group, deck) -> bool:
-        self.clear_temp_list()
         if self.is_valid_group(group):
-            self.delete.clear()
             for card in group:
                 print(self.hand)
                 print(card)
+                self.delete.append(card)
+                print(self.delete)
                 self.hand.remove(card)
             deck.add_to_deck(group)
             return True
@@ -78,7 +75,6 @@ class Players:
 
     # 检查玩家手牌是否为空
     def has_empty_hand(self):
-        self.clear_temp_list()
         return len(self.hand) == 0
     
 

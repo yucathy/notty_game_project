@@ -195,6 +195,8 @@ class NottyGame:
                 if action_user_id != None and user_action == self.GameActions.SKIP:
                     if action_user_id + 1 >= len(self.players):
                         self.turn_count += 1
+                for player in self.players:
+                    player.clear_temp_list()
 
             except queue.Empty:
                 continue
