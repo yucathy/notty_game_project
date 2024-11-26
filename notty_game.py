@@ -204,6 +204,7 @@ class NottyGame:
 
 
     def ai_take_action(self, current_ai_id):
+        print("current_ai_id---",current_ai_id)
 
         random_action = random.choice(self.ai_actions_pool)
         if random_action != self.GameActions.DISCARD:

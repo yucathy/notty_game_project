@@ -127,14 +127,14 @@ def renderMessage(screen,w,basic,type,turn=1,currentPlayer=0,cards=[],targetPlay
     pos = (w/2-text_width/2, 30)
     screen.blit(text_surface, pos)
 
-def doAIAction(basic, aType, currentAIAction):
-    if currentAIAction == 'draw':
+def doAIAction(basic, aType, currentAction):
+    if currentAction == 'draw':
         basic.actionType = aType.SHOW
-    elif currentAIAction == 'steal':
+    elif currentAction == 'steal':
         basic.actionType = aType.STEAL
-    elif currentAIAction == 'discard':
+    elif currentAction == 'discard':
         basic.actionType = aType.DISCARD
-    elif currentAIAction == 'skip':
+    elif currentAction == 'skip':
         basic.actionType = aType.SKIP
 
 

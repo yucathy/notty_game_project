@@ -19,7 +19,7 @@ class BasicComponent(object):
             "draw": 0,
             "steal": 0
         }
-        self.currentAIAction = ""
+        self.isAI = False
         self.init_time = 0
         self.showDrawCard_time = 0
         self.showStealCard_time = 0

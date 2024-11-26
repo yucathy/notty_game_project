@@ -100,8 +100,10 @@ class GUI:
                 # print("basic.allHandCard----", basic.allHandCard)
 
                 # AI player start doing...
-                if basic.currentPlayer != 0 or basic.actionType == aType.PLAY_FOR_ME:
-                    doAIAction(basic,aType,self.game_status['type'].value)
+                # if basic.currentPlayer != 0 or basic.actionType == aType.PLAY_FOR_ME:
+                #     doAIAction(basic,aType,self.game_status['type'].value)
+                if basic.isAI:
+                    doAIAction(basic, aType, self.game_status['type'].value)
 
             if basic.play_page == "HOME":
                 playButt.draw(screen)
@@ -168,15 +170,26 @@ class GUI:
                 if basic.actionType == aType.SELECT_ACTION:
                     # print("basic.actionNum---",basic.actionNum)
                     # AI player next action...
-                    if basic.currentPlayer != 0 or basic.actionType == aType.PLAY_FOR_ME:
-                        if self.game_status['next_player'] == -1 and self.game_status['type'].value != "skip":
+                    # next_player = self.game_status['next_player']
+                    # if basic.currentPlayer != 0:
+                    #     if next_player == -1 and self.game_status['type'].value != "skip":
+                    #         self.nottygame.ai_take_action(next_player)
+                    # else:
+                    #     # if basic.actionType == aType.PLAY_FOR_ME:
+                    #     #     if next_player == -1 and self.game_status['type'].value != "skip":
+                    #     #         self.nottygame.ai_take_action(basic.currentPlayer)
+                    #     # else:
+                    #         renderMessage(screen,WINDOW_WIDTH,basic,aType.SELECT_ACTION,self.game_status["turns_count"])
+                    if basic.isAI:
+                        next_player = self.game_status['next_player']
+                        if next_player == -1 and self.game_status['type'].value != "skip":
                             self.nottygame.ai_take_action(next_player)
                     else:
-                        renderMessage(screen,WINDOW_WIDTH,basic,aType.SELECT_ACTION,self.game_status["turns_count"])
+                        renderMessage(screen, WINDOW_WIDTH, basic, aType.SELECT_ACTION, self.game_status["turns_count"])
                     if skipButt.clickable:
                         skipButt.draw(screen)
-                    # if playForMeButt.clickable:
-                    #     playForMeButt.draw(screen)
+                    if playForMeButt.clickable:
+                        playForMeButt.draw(screen)
                     if basic.actionNum["draw"] == 0:
                         drawButt.draw(screen)
                         drawButt.clickable = True
@@ -189,7 +202,6 @@ class GUI:
                     basic.showStealCard_time = 0
                     basic.showDiscard_time = 0
                     basic.showSkip_time = 0
-
 
                 if basic.actionType == aType.DRAW:
                     drawButt.draw(screen)
@@ -235,18 +247,18 @@ class GUI:
                     if self.game_status["action_success"]:
                         showCardList = renderDrawnCard(WINDOW_WIDTH, WINDOW_HEIGHT, self.game_status["players"], basic.currentPlayer)
                         screen.blits(showCardList)
-                        if basic.currentPlayer == 0:  # You steal card
-                            renderMessage(screen, WINDOW_WIDTH, basic, aType.STEAL, self.game_status["turns_count"],
-                                          basic.currentPlayer,
-                                          self.game_status["players"][basic.currentPlayer]["add"], basic.selectPlayer)
-                        else:   # AI steal card
-                            stolenPlayer = 0
-                            for i in range(len(self.game_status["players"])):
-                                if (not self.game_status["players"][i]["active"]) and len(self.game_status["players"][i]["delete"]) == 1:
-                                    stolenPlayer = i
-                            renderMessage(screen, WINDOW_WIDTH, basic, aType.STEAL, self.game_status["turns_count"],
-                                          basic.currentPlayer,
-                                          self.game_status["players"][basic.currentPlayer]["add"], stolenPlayer)
+                        # if basic.currentPlayer == 0:  # You steal card
+                        #     renderMessage(screen, WINDOW_WIDTH, basic, aType.STEAL, self.game_status["turns_count"],
+                        #                   basic.currentPlayer,
+                        #                   self.game_status["players"][basic.currentPlayer]["add"], basic.selectPlayer)
+                        # else:   # AI steal card
+                        stolenPlayer = 0
+                        for i in range(len(self.game_status["players"])):
+                            if (not self.game_status["players"][i]["active"]) and len(self.game_status["players"][i]["delete"]) == 1:
+                                stolenPlayer = i
+                        renderMessage(screen, WINDOW_WIDTH, basic, aType.STEAL, self.game_status["turns_count"],
+                                      basic.currentPlayer,
+                                      self.game_status["players"][basic.currentPlayer]["add"], stolenPlayer)
 
                         if basic.showStealCard_time == 0:
                             basic.showStealCard_time = current_time
@@ -295,20 +307,19 @@ class GUI:
                     else:
                         if current_time - basic.showSkip_time >= 2000:
                             basic.showSkip_time = current_time
-                            if self.game_status['next_player'] != -1:
-                                next_player = self.game_status['next_player']
+                            next_player = self.game_status['next_player']
+                            if next_player != -1:
                                 basic.currentPlayer = next_player
-                                if next_player == 0 and basic.actionType != aType.PLAY_FOR_ME:  # return to me and enter next round
+                                if next_player == 0:  # return to me and enter next round
+                                    basic.isAI = False
                                     basic.actionType = aType.SELECT_ACTION
                                 else:
                                     # AI player start...
-                                    self.nottygame.ai_take_action(next_player)
+                                    self.nottygame.ai_take_action(basic.currentPlayer)
 
                 if basic.actionType == aType.PLAY_FOR_ME:
-                    next_player = self.game_status['next_player']
-                    basic.currentPlayer = next_player
                     # AI player start...
-                    self.nottygame.ai_take_action(next_player)
+                    self.nottygame.ai_take_action(basic.currentPlayer)
 
 
 
@@ -428,10 +439,12 @@ class GUI:
                                 sound.click.play()
                             self.nottygame.send_action(self.nottygame.GameActions.SKIP, basic.currentPlayer)
                             basic.drawnDeckNum = 0
+                            basic.isAI = True
                             basic.actionType = aType.SKIP
                         if playForMeButt.rect.collidepoint(event.pos) and playForMeButt.clickable:
                             if musicOn:
                                 sound.click.play()
+                            basic.isAI = True
                             basic.actionType = aType.PLAY_FOR_ME
 
 
