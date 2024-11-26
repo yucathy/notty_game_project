@@ -99,7 +99,7 @@ class AIPlayer(Players):
                 if self.is_valid_group(combo):
                     return combo
         
-        return None
+        return []
     
     def find_largest_valid_group(self) -> list:
         '''
