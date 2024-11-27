@@ -112,7 +112,8 @@ class NottyGame:
         self.game_status["winner"] = self.winner
         player_list = []
         for player, active in zip(self.players, active_status):
-            player_list.append({"name": player.name, "handset": player.hand, \
+            sorted_handset = sorted(player.hand, key=lambda card: (card.color, card.number))
+            player_list.append({"name": player.name, "handset": sorted_handset, \
                                 "add": player.add, "delete": player.delete, "active": active})
 
         self.game_status["players"] = player_list
