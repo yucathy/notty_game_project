@@ -10,7 +10,7 @@ class NottyGUI:
         
     def run(self):
 
-        self.nottygame.setup(2, ['Amy', "Cathy"], self.nottygame.ComputerLevel.EASY) # name can be None.
+        self.nottygame.setup(2, ['Amy', "Cathy"], self.nottygame.ComputerLevel.HARD) # name can be None.
 
         self.nottygame.start_game()
 
