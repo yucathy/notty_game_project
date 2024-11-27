@@ -20,23 +20,37 @@ class ComputerPlayer(Players):
         :param opponents: 所有其他玩家
         :param deck: 当前牌堆
         """
+        num = random.random()
         # 随机决定是否直接跳过回合（20%的概率）
-        if random.random() < 0.2:
+        if num <= 0.2:
             return
 
         # 随机选择抽牌或偷牌
-        if random.choice([True, False]) and len(deck) > 0:
+        if num <= 0.4 and num > 0.2 and len(deck) > 0:
             # 随机抽取 1 到 3 张牌
             self.draw_cards(deck, random.randint(1, 3))
-        elif opponents:
+
+        if num <= 0.6 and num > 0.4 and opponents:
             # 从随机对手手中抽取一张牌
             opponent = random.choice(opponents)
             self.take_random_card(opponent)
 
-        # 尝试丢弃一个有效的卡组
-        valid_group = self.find_valid_group()
-        if valid_group:
-            self.discard_group(valid_group, deck)
+        if num <= 0.8 and num > 0.6 and len(deck) > 0:
+            # 随机抽取 1 到 3 张牌
+            self.draw_cards(deck, random.randint(1, 3))
+            # 尝试丢弃一个有效的卡组
+            valid_group = self.find_valid_group()
+            if valid_group:
+                self.discard_group(valid_group, deck)
+
+        if num <= 1 and num > 0.8 and opponents:
+            # 从随机对手手中抽取一张牌
+            opponent = random.choice(opponents)
+            self.take_random_card(opponent)
+            # 尝试丢弃一个有效的卡组
+            valid_group = self.find_valid_group()
+            if valid_group:
+                self.discard_group(valid_group, deck)
 
     # version1.0 hard
     def take_turn_advanced(self, opponents, deck):
