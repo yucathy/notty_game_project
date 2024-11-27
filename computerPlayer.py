@@ -20,7 +20,11 @@ class ComputerPlayer(Players):
         :param opponents: 所有其他玩家
         :param deck: 当前牌堆
         """
-        # 如果电脑玩家难度是简单模式，随机选择操作
+        # 随机决定是否直接跳过回合（20%的概率）
+        if random.random() < 0.2:
+            return
+
+        # 随机选择抽牌或偷牌
         if random.choice([True, False]) and len(deck) > 0:
             # 随机抽取 1 到 3 张牌
             self.draw_cards(deck, random.randint(1, 3))
@@ -28,11 +32,11 @@ class ComputerPlayer(Players):
             # 从随机对手手中抽取一张牌
             opponent = random.choice(opponents)
             self.take_random_card(opponent)
-        else:
-            # 尝试丢弃一个有效的卡组
-            valid_group = self.find_valid_group()
-            if valid_group:
-                self.discard_group(valid_group, deck)
+
+        # 尝试丢弃一个有效的卡组
+        valid_group = self.find_valid_group()
+        if valid_group:
+            self.discard_group(valid_group, deck)
 
     # version1.0 hard
     def take_turn_advanced(self, opponents, deck):
