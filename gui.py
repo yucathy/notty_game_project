@@ -11,7 +11,7 @@ class NottyGUI:
 
     def run(self):
 
-        self.nottygame.setup(2, ['Amy', "Cathy"], self.nottygame.ComputerLevel.EASY)  # name can be None.
+        self.nottygame.setup(2, ['Amy', "Cathy"], self.nottygame.ComputerLevel.HARD)  # name can be None.
 
         self.nottygame.start_game()
 
@@ -39,7 +39,7 @@ class NottyGUI:
 
             self.nottygame.send_action(self.nottygame.GameActions.DISCARD, self.nottygame.user_id, discarded_list)
 
-            # self.nottygame.send_action(self.nottygame.GameActions.DISCARD, 
+            # self.nottygame.send_action(self.nottygame.GameActions.DISCARD,
             #                               self.nottygame.user_id,
             #                               [self.nottygame.create_card("Blue", 4),
             #                                self.nottygame.create_card("Yellow", 4),
