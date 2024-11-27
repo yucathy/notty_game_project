@@ -19,6 +19,7 @@ class BasicComponent(object):
             "draw": 0,
             "steal": 0
         }
+        self.currentRound = 1   # current round number
         self.isAI = False
         self.init_time = 0
         self.showDrawCard_time = 0
@@ -69,12 +70,12 @@ class ButtonImage():
         self.image = image
         self.rect = self.image.get_rect()
         self.rect.topleft = (x,y)
-        self.clickable = True
-        self.visible = True
+        self.clickable = False
 
     def draw(self, screen):
         # action = False
         # pos = pygame.mouse.get_pos()
         # screen.blit(self.image, self.rect)
+        self.clickable = True
         screen.blit(self.image, (self.rect.x, self.rect.y))
         # return action

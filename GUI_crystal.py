@@ -1,9 +1,5 @@
-import time
-
 from Components import *
 from Functions import *
-import queue
-import Card
 
 class GUI:
     def __init__(self,nottygame):
@@ -84,6 +80,14 @@ class GUI:
         playForMeImg = img.back.convert_alpha()
         playForMeButt = ButtonImage(950, 600, playForMeImg)
 
+        button_obj = {
+            "home": [playButt, instructButt, muteButt, unmuteButt],
+            "info": [backButt, muteButt, unmuteButt],
+            "start": [startButt,backButt, muteButt, unmuteButt],
+            "complete_draw": [stealButt1, stealButt2, skipButt, playForMeButt],
+            "select_discard": [discardButt],
+        }
+
 
         while active:
             clock.tick(30)
@@ -98,16 +102,13 @@ class GUI:
                 self.game_status = self.nottygame.render_queue.get(timeout = 0.033)
                 print("self.game_status---",self.game_status)
                 # print("basic.allHandCard----", basic.allHandCard)
-
-                # AI player start doing...
-                # if basic.currentPlayer != 0 or basic.actionType == aType.PLAY_FOR_ME:
-                #     doAIAction(basic,aType,self.game_status['type'].value)
                 if basic.isAI:
                     doAIAction(basic, aType, self.game_status['type'].value)
 
             if basic.play_page == "HOME":
                 playButt.draw(screen)
                 instructButt.draw(screen)
+                checkButtClickable(button_obj,"home")
                 # player and difficulty
                 # if basic.playerList[0]["level"] == "Easy":
                 #     fontLevel0 = renderSysFont("Arial", 50, "Easy", (255, 238, 46), (220, 300))
@@ -121,6 +122,7 @@ class GUI:
 
             elif basic.play_page == "INFO":
                 backButt.draw(screen)
+                checkButtClickable(button_obj, "info")
 
             elif basic.play_page == "GAME":
                 backButt.draw(screen)
@@ -136,6 +138,7 @@ class GUI:
                 if basic.actionType == aType.START:
                     if musicOn:
                         sound.shuffled.play()
+                    checkButtClickable(button_obj,"start")
                     basic.actionType = aType.SHUFFLE
 
                 # deck init
@@ -170,26 +173,15 @@ class GUI:
                 if basic.actionType == aType.SELECT_ACTION:
                     # print("basic.actionNum---",basic.actionNum)
                     # AI player next action...
-                    # next_player = self.game_status['next_player']
-                    # if basic.currentPlayer != 0:
-                    #     if next_player == -1 and self.game_status['type'].value != "skip":
-                    #         self.nottygame.ai_take_action(next_player)
-                    # else:
-                    #     # if basic.actionType == aType.PLAY_FOR_ME:
-                    #     #     if next_player == -1 and self.game_status['type'].value != "skip":
-                    #     #         self.nottygame.ai_take_action(basic.currentPlayer)
-                    #     # else:
-                    #         renderMessage(screen,WINDOW_WIDTH,basic,aType.SELECT_ACTION,self.game_status["turns_count"])
                     if basic.isAI:
                         next_player = self.game_status['next_player']
                         if next_player == -1 and self.game_status['type'].value != "skip":
-                            self.nottygame.ai_take_action(next_player)
+                            self.nottygame.ai_take_action(basic.currentPlayer)
                     else:
-                        renderMessage(screen, WINDOW_WIDTH, basic, aType.SELECT_ACTION, self.game_status["turns_count"])
-                    if skipButt.clickable:
-                        skipButt.draw(screen)
-                    if playForMeButt.clickable:
-                        playForMeButt.draw(screen)
+                        renderMessage(screen, WINDOW_WIDTH, basic, aType.SELECT_ACTION, basic.currentRound)
+                    skipButt.draw(screen)
+                    playForMeButt.draw(screen)
+                    discardButt.clickable = False
                     if basic.actionNum["draw"] == 0:
                         drawButt.draw(screen)
                         drawButt.clickable = True
@@ -247,11 +239,6 @@ class GUI:
                     if self.game_status["action_success"]:
                         showCardList = renderDrawnCard(WINDOW_WIDTH, WINDOW_HEIGHT, self.game_status["players"], basic.currentPlayer)
                         screen.blits(showCardList)
-                        # if basic.currentPlayer == 0:  # You steal card
-                        #     renderMessage(screen, WINDOW_WIDTH, basic, aType.STEAL, self.game_status["turns_count"],
-                        #                   basic.currentPlayer,
-                        #                   self.game_status["players"][basic.currentPlayer]["add"], basic.selectPlayer)
-                        # else:   # AI steal card
                         stolenPlayer = 0
                         for i in range(len(self.game_status["players"])):
                             if (not self.game_status["players"][i]["active"]) and len(self.game_status["players"][i]["delete"]) == 1:
@@ -259,7 +246,6 @@ class GUI:
                         renderMessage(screen, WINDOW_WIDTH, basic, aType.STEAL, self.game_status["turns_count"],
                                       basic.currentPlayer,
                                       self.game_status["players"][basic.currentPlayer]["add"], stolenPlayer)
-
                         if basic.showStealCard_time == 0:
                             basic.showStealCard_time = current_time
                         else:
@@ -271,7 +257,7 @@ class GUI:
                                 basic.actionType = aType.SELECT_ACTION
 
                 if basic.actionType == aType.SELECT_DISCARD:
-                    if basic.currentPlayer == 0:
+                    if basic.currentPlayer == 0 and len(basic.drawnDiscard_surface) > 0:
                         discardButt.draw(screen)
                     totalWidth = getCardListWidth(len(basic.drawnDiscard_surface))
                     drawnDiscardList = list(basic.drawnDiscard_surface)
@@ -312,6 +298,7 @@ class GUI:
                                 basic.currentPlayer = next_player
                                 if next_player == 0:  # return to me and enter next round
                                     basic.isAI = False
+                                    basic.currentRound = self.game_status["turns_count"] + 1
                                     basic.actionType = aType.SELECT_ACTION
                                 else:
                                     # AI player start...
@@ -335,8 +322,6 @@ class GUI:
                                 sound.click.play()
                                 basic.play_page = "GAME"
                                 self.nottygame.start_game()
-                                startButt.clickable = True
-                                instructButt.clickable = False
                         if instructButt.rect.collidepoint(event.pos) and instructButt.clickable:
                             if musicOn:
                                 sound.click.play()
@@ -386,14 +371,14 @@ class GUI:
                                 drawButt.clickable = False
                             for stealButt in stealButtArr:
                                 stealButt.clickable = False
+                            discardButt.clickable = skipButt.clickable = playForMeButt.clickable = False
                         # complete draw action
                         if completeButt.rect.collidepoint(event.pos) and completeButt.clickable:
                             if basic.drawnDeckNum > 0:
                                 if musicOn:
                                     sound.click.play()
                                 self.nottygame.send_action(self.nottygame.GameActions.DRAW, basic.currentPlayer, basic.drawnDeckNum)
-                                drawButt.clickable = False
-                                completeButt.clickable = False
+                                checkButtClickable(button_obj,"complete_draw")
                                 basic.actionType = aType.SHOW
                         # select player and draw from player(steal)
                         for i in range(len(stealButtArr)):
@@ -401,7 +386,7 @@ class GUI:
                                 if musicOn:
                                     sound.click.play()
                                 basic.selectPlayer = i+1
-                                drawButt.clickable = False
+                                drawButt.clickable = discardButt.clickable = skipButt.clickable = playForMeButt.clickable = False
                                 if basic.actionType == aType.SELECT_PLAYER:
                                     self.nottygame.send_action(self.nottygame.GameActions.STEAL, basic.currentPlayer, basic.selectPlayer)
                                     stealButtArr[basic.selectPlayer-1].clickable = False
@@ -413,19 +398,17 @@ class GUI:
                                         stealButtArr[0].clickable = False
                                     basic.actionType = aType.SELECT_PLAYER
                         # my card click
-                        cardsLength = len(basic.allHandCard[0]["surfaces"])
-                        for i in range(cardsLength):
+                        myCardsLength = len(basic.allHandCard[0]["surfaces"])
+                        for i in range(myCardsLength):
                             item_surface = basic.allHandCard[0]["surfaces"][i]
                             item_card = basic.allHandCard[0]["cards"][i]
-                            itemWidth = 85 if i == cardsLength-1 else 20
+                            itemWidth = 85 if i == myCardsLength-1 else 20
                             itemRect = item_surface[0].get_rect(topleft=item_surface[1], width=itemWidth)
                             if itemRect.collidepoint(event.pos):
                                 if basic.actionType == aType.SELECT_ACTION or basic.actionType == aType.SELECT_DISCARD:
                                     basic.drawnDiscard_surface.add(item_surface)
                                     basic.drawnDiscard_card.add(item_card)
-                                    drawButt.clickable = False
-                                    for stealButt in stealButtArr:
-                                        stealButt.clickable = False
+                                    checkButtClickable(button_obj,"select_discard")
                                     basic.actionType = aType.SELECT_DISCARD
                         # discard my card
                         if discardButt.rect.collidepoint(event.pos) and discardButt.clickable:
@@ -441,6 +424,7 @@ class GUI:
                             basic.drawnDeckNum = 0
                             basic.isAI = True
                             basic.actionType = aType.SKIP
+                        # play for me
                         if playForMeButt.rect.collidepoint(event.pos) and playForMeButt.clickable:
                             if musicOn:
                                 sound.click.play()

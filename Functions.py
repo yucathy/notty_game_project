@@ -33,6 +33,12 @@ def toggleDifficulty(basic,i):
     else:
         basic.playerList[i]["level"] = "Easy"
 
+def renderSysFont(font,size,text,color,pos):
+    fontObj = pygame.font.SysFont(font, size).render(text,True, color)
+    fontRect = fontObj.get_rect()
+    fontRect.topleft = pos
+    return [fontObj,fontRect]
+
 def renderHandCards(w,h,playerList):
     myCards = []
     leftPlayerCards = []
@@ -102,12 +108,6 @@ def renderDrawnCard(w,h,playerList,currentPlayer):
             showCardList.append((rotatedImg, imgPos))
     return showCardList
 
-def renderSysFont(font,size,text,color,pos):
-    fontObj = pygame.font.SysFont(font, size).render(text,True, color)
-    fontRect = fontObj.get_rect()
-    fontRect.topleft = pos
-    return [fontObj,fontRect]
-
 def renderMessage(screen,w,basic,type,turn=1,currentPlayer=0,cards=[],targetPlayer=0):
     playerName = basic.players[currentPlayer]
     targetPlayerName = basic.players[targetPlayer]
@@ -117,7 +117,7 @@ def renderMessage(screen,w,basic,type,turn=1,currentPlayer=0,cards=[],targetPlay
         "show_card": f"Round{turn}: {playerName} has drawn {cardStr} from deck",
         "draw_from_player": f"Round{turn}: {playerName} has drawn {cardStr} from {targetPlayerName}",
         "discard_suc": f"Round{turn}: {playerName} has discarded {cardStr}",
-        "discard_fail": "Not a valid group! Please select again",
+        "discard_fail": f"Round{turn}: Not a valid group! Please select again",
         "skip": f"Round{turn}: {playerName} skipped"
     }
     text = actionMessage[type]
@@ -136,6 +136,17 @@ def doAIAction(basic, aType, currentAction):
         basic.actionType = aType.DISCARD
     elif currentAction == 'skip':
         basic.actionType = aType.SKIP
+
+def checkButtClickable(button_obj,type):
+    tempArr = []
+    for e in button_obj.values():
+        tempArr += e
+    allButtons = set(tempArr)
+    notButtons = allButtons.difference(button_obj[type])
+    for butt in button_obj[type]:
+       butt.clickable = True
+    for butt in notButtons:
+       butt.clickable = False
 
 
 
