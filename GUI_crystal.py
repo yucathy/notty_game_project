@@ -336,7 +336,13 @@ class GUI:
                                 sound.click.play()
                             if len(basic.vs_players) >= 2:
                                 basic.play_page = "GAME"
-                                self.nottygame.setup(len(basic.vs_players),basic.vs_players,basic.difficulty[basic.currentDifficulty])
+                                if basic.currentDifficulty == 0:
+                                    aiLevel = self.nottygame.ComputerLevel.EASY
+                                elif basic.currentDifficulty == 1:
+                                    aiLevel = self.nottygame.ComputerLevel.MEDIUM
+                                else:
+                                    aiLevel = self.nottygame.ComputerLevel.HARD
+                                self.nottygame.setup(len(basic.vs_players),basic.vs_players,aiLevel)
                                 self.nottygame.start_game()
                         if ruleButt.rect.collidepoint(event.pos) and ruleButt.clickable:
                             if musicOn:

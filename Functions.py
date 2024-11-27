@@ -1,9 +1,6 @@
 import pygame
 
 def reset(basic):
-    basic.vs_players = ["You", "Grace"]
-    basic.difficulty = {0: "easy", 1: "medium", 2: "hard"}
-    basic.currentDifficulty = 0
     basic.actionType = "start"
     basic.currentPlayer = 0  # 0: you, 1: left player, 2: right player
     basic.selectPlayer = 0  # choose a player you want to steal(player 1 or 2)
