@@ -22,18 +22,15 @@ class GUI:
 
         active = True
         musicOn = True
-        # pygame.mixer.music.load(sound.back_g)
+        # pygame.mixer.music.load(sound.bgmusic)
         # pygame.mixer.music.play(-1)             # continuous music
         # pygame.mixer.music.set_volume(0.3)      # volume
 
-        self.nottygame.setup(3, ['You', 'Grace', 'John'], self.nottygame.ComputerLevel.EASY)   # name can be None.
-        # self.nottygame.start_game()
-
         # play/instruction button
         playImg = img.play.convert_alpha()
-        playButt = ButtonImage(80, 100, playImg)
-        instructImg = img.instruction.convert_alpha()
-        instructButt = ButtonImage(80, 200, instructImg)
+        playButt = ButtonImage(420, 200, playImg)
+        ruleImg = img.rule.convert_alpha()
+        ruleButt = ButtonImage(620, 200, ruleImg)
 
         # back button
         backImg = img.back.convert_alpha()
@@ -46,14 +43,15 @@ class GUI:
         unmuteButt = ButtonImage(960, 10, unmuteImg)
 
         # player name and difficulty
-        fontName0 = renderSysFont("Arial", 50, "John", (255, 238, 46), (40, 300))
-        fontLevel0 = renderSysFont("Arial", 50, "Easy", (255, 238, 46), (220, 300))
-        fontLeft0 = renderSysFont("Arial", 50, "<", (255, 238, 46), (190, 300))
-        fontRight0 = renderSysFont("Arial", 50, ">", (255, 238, 46), (330, 300))
-        fontName1 = renderSysFont("Arial", 50, "Grace", (255, 238, 46), (40, 400))
-        fontLevel1 = renderSysFont("Arial", 50, "Hard", (255, 238, 46), (220, 400))
-        fontLeft1 = renderSysFont("Arial", 50, "<", (255, 238, 46), (190, 400))
-        fontRight1 = renderSysFont("Arial", 50, ">", (255, 238, 46), (330, 400))
+        fontSelect = createSysFont("Arial", 24, "You VS", (0, 0, 0), (420, 350))
+        fontName1 = createSysFont("Arial", 24, "Grace", (0, 0, 0), (600, 350))
+        fontName2 = createSysFont("Arial", 24, "John", (0, 0, 0), (700, 350))
+        fontLevel = createSysFont("Arial", 24, "Difficulty: ", (0, 0, 0), (420, 450))
+        fontLevelArr = []
+        for ele in basic.difficulty.values():
+            fontLevelArr.append(createSysFont("Arial", 24, ele.upper(), (0, 0, 0), (620, 450)))
+        fontLeft = createSysFont("Arial", 24, "<", (0, 0, 0), (600, 450))
+        fontRight = createSysFont("Arial", 24, ">", (0, 0, 0), (720, 450))
 
         # deal card button
         startImg = img.start.convert_alpha()
@@ -64,12 +62,10 @@ class GUI:
         completeImg = img.back.convert_alpha()
         completeButt = ButtonImage(520, 300, completeImg)
         # steal button
-        stealButtArr = []
         stealImg = img.back.convert_alpha()
         stealButt1 = ButtonImage(60, WINDOW_HEIGHT/2-stealImg.get_height()/2, stealImg)    # left player
         stealButt2 = ButtonImage(900, WINDOW_HEIGHT/2-stealImg.get_height()/2, stealImg)    # right player
-        stealButtArr.append(stealButt1)
-        stealButtArr.append(stealButt2)
+        stealButtArr = [stealButt1,stealButt2]
         # discard button
         discardImg = img.back.convert_alpha()
         discardButt = ButtonImage(900, 650, discardImg)
@@ -81,7 +77,7 @@ class GUI:
         playForMeButt = ButtonImage(950, 600, playForMeImg)
 
         button_obj = {
-            "home": [playButt, instructButt, muteButt, unmuteButt],
+            "home": [playButt, ruleButt, muteButt, unmuteButt],
             "info": [backButt, muteButt, unmuteButt],
             "start": [startButt,backButt, muteButt, unmuteButt],
             "complete_draw": [stealButt1, stealButt2, skipButt, playForMeButt],
@@ -106,34 +102,51 @@ class GUI:
                     doAIAction(basic, aType, self.game_status['type'].value)
 
             if basic.play_page == "HOME":
+                screen.blit(img.bgHome,(0,0))
                 playButt.draw(screen)
-                instructButt.draw(screen)
+                ruleButt.draw(screen)
                 checkButtClickable(button_obj,"home")
                 # player and difficulty
-                # if basic.playerList[0]["level"] == "Easy":
-                #     fontLevel0 = renderSysFont("Arial", 50, "Easy", (255, 238, 46), (220, 300))
-                # else:
-                #     fontLevel0 = renderSysFont("Arial", 50, "Hard", (255, 238, 46), (220, 300))
-                # if basic.playerList[1]["level"] == "Easy":
-                #     fontLevel1 = renderSysFont("Arial", 50, "Easy", (255, 238, 46), (220, 400))
-                # else:
-                #     fontLevel1 = renderSysFont("Arial", 50, "Hard", (255, 238, 46), (220, 400))
-                # screen.blits((fontName0,fontLevel0,fontLeft0,fontRight0,fontName1,fontLevel1,fontLeft1,fontRight1))
+                screen.blits((fontSelect,fontName1,fontName2,fontLevel,fontLevelArr[basic.currentDifficulty],fontLeft,fontRight))
 
             elif basic.play_page == "INFO":
                 backButt.draw(screen)
                 checkButtClickable(button_obj, "info")
 
             elif basic.play_page == "GAME":
+                screen.blit(img.bgGame, (0, 0))
                 backButt.draw(screen)
                 if startButt.clickable:
                     startButt.draw(screen)
-                screen.blit(img.woman, (20, 70))
-                screen.blit(img.man, (900, 70))
-                # playerName0 = renderSysFont("Arial", 20, "Grace", (255, 238, 46), (40, 340))
-                # playerName1 = renderSysFont("Arial", 20, "John", (255, 238, 46), (920, 330))
-                # yourName = renderSysFont("Arial", 20, "You", (255, 238, 46), (450, 550))
-                # screen.blits((playerName0,playerName1,yourName))
+
+                # name and profile picture
+                screen.blit(img.you, (180, 590))
+                player0 = createSysFont("Arial", 20, "You", (0, 0, 0), (192, 565))
+                if len(basic.vs_players) == 2:
+                    if basic.vs_players[1] == "Grace":
+                        screen.blit(img.woman, (50, 75))
+                        player1 = createSysFont("Arial", 20, "Grace", (0, 0, 0), (53, 50))
+                        screen.blits((player0,player1))
+                    else:
+                        screen.blit(img.man, (50, 75))
+                        player2 = createSysFont("Arial", 20, "John", (0, 0, 0), (58, 50))
+                        screen.blits((player0,player2))
+                elif len(basic.vs_players) == 3:
+                    if basic.vs_players[1] == "Grace":
+                        screen.blit(img.woman, (50, 75))
+                        screen.blit(img.man, (890, 75))
+                        player1 = createSysFont("Arial", 20, "Grace", (0, 0, 0), (53, 50))
+                        player2 = createSysFont("Arial", 20, "John", (0, 0, 0), (900, 50))
+                    else:
+                        screen.blit(img.woman, (890, 75))
+                        screen.blit(img.man, (50, 75))
+                        player1 = createSysFont("Arial", 20, "Grace", (0, 0, 0), (895, 50))
+                        player2 = createSysFont("Arial", 20, "John", (0, 0, 0), (58, 50))
+                    screen.blits((player0,player1,player2))
+
+                # if basic.actionType != aType.START or basic.actionType != aType.SHUFFLE:
+                #     renderCurrentPlayerHint(screen,img,basic.currentPlayer)
+
 
                 if basic.actionType == aType.START:
                     if musicOn:
@@ -184,12 +197,13 @@ class GUI:
                     discardButt.clickable = False
                     if basic.actionNum["draw"] == 0:
                         drawButt.draw(screen)
-                        drawButt.clickable = True
-                        completeButt.clickable = True
+                        drawButt.clickable = completeButt.clickable = True
                     if basic.actionNum["steal"] == 0:
-                        for stealButt in stealButtArr:
-                            stealButt.draw(screen)
-                            stealButt.clickable = True
+                        stealButt1.draw(screen)
+                        stealButt1.clickable = True
+                        if len(basic.vs_players) == 3:
+                            stealButt2.draw(screen)
+                            stealButt2.clickable = True
                     basic.showDrawCard_time = 0
                     basic.showStealCard_time = 0
                     basic.showDiscard_time = 0
@@ -320,9 +334,11 @@ class GUI:
                         if playButt.rect.collidepoint(event.pos) and playButt.clickable:
                             if musicOn:
                                 sound.click.play()
+                            if len(basic.vs_players) >= 2:
                                 basic.play_page = "GAME"
+                                self.nottygame.setup(len(basic.vs_players),basic.vs_players,basic.difficulty[basic.currentDifficulty])
                                 self.nottygame.start_game()
-                        if instructButt.rect.collidepoint(event.pos) and instructButt.clickable:
+                        if ruleButt.rect.collidepoint(event.pos) and ruleButt.clickable:
                             if musicOn:
                                 sound.click.play()
                                 basic.play_page = "INFO"
@@ -343,16 +359,32 @@ class GUI:
                             else:
                                 pygame.mixer.music.unpause()
                                 musicOn = True
-                        # if fontLeft0[1].collidepoint(event.pos) or fontRight0[1].collidepoint(event.pos):
-                        #     if pygame.mouse.get_pressed()[0] == 1:
-                        #         if musicOn:
-                        #             sound.click.play()
-                        #         toggleDifficulty(basic,0)
-                        # if fontLeft1[1].collidepoint(event.pos) or fontRight1[1].collidepoint(event.pos):
-                        #     if pygame.mouse.get_pressed()[0] == 1:
-                        #         if musicOn:
-                        #             sound.click.play()
-                        #         toggleDifficulty(basic, 1)
+                        # select VS player
+                        if fontName1[1].collidepoint(event.pos):
+                            if musicOn:
+                                sound.click.play()
+                            if "Grace" in basic.vs_players:
+                                basic.vs_players.remove("Grace")
+                            else:
+                                basic.vs_players.append("Grace")
+                            print(basic.vs_players)
+                        if fontName2[1].collidepoint(event.pos):
+                            if musicOn:
+                                sound.click.play()
+                            if "John" in basic.vs_players:
+                                basic.vs_players.remove("John")
+                            else:
+                                basic.vs_players.append("John")
+                            print(basic.vs_players)
+                        # toggle difficulty
+                        if fontLeft[1].collidepoint(event.pos):
+                            if musicOn:
+                                sound.click.play()
+                            toggleDifficulty(basic,basic.currentDifficulty,"left")
+                        if fontRight[1].collidepoint(event.pos):
+                            if musicOn:
+                                sound.click.play()
+                            toggleDifficulty(basic,basic.currentDifficulty,"right")
                         # deal cards
                         if startButt.rect.collidepoint(event.pos) and startButt.clickable:
                             if musicOn:

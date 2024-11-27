@@ -3,7 +3,9 @@ import pygame
 class BasicComponent(object):
     def __init__(self):
         self.play_page = "HOME"
-        self.players = ["You","Grace","John"]
+        self.vs_players = ["You","Grace"]
+        self.difficulty = {0: "easy", 1: "medium", 2: "hard"}
+        self.currentDifficulty = 0
         self.actionType = "start"
         self.currentPlayer = 0  # 0: you, 1: left player, 2: right player
         self.selectPlayer = 0  # choose a player you want to steal(player 1 or 2)
@@ -47,20 +49,24 @@ class ActionType(object):
 
 class Image(object):
     def __init__(self):
-        self.mute = pygame.image.load("./images/mute.png")
-        self.unmute = pygame.image.load("./images/unmute.png")
-        self.back = pygame.image.load("./images/back.png")
-        self.play = pygame.image.load("./images/play.png")
-        self.start = pygame.image.load("./images/start.png")
-        self.instruction = pygame.image.load("./images/instruction.png")
-        self.woman = pygame.image.load("./images/woman.png")
-        self.man = pygame.image.load("./images/man.png")
-        self.cardback = pygame.image.load("./images/cardback.jpg")
+        self.bgHome = pygame.image.load("images/bg-home.jpg")
+        self.bgGame = pygame.image.load("images/bg-game.jpg")
+        self.play = pygame.image.load("images/start.png")
+        self.rule = pygame.image.load("images/rule.png")
+        self.mute = pygame.image.load("images/mute.png")
+        self.unmute = pygame.image.load("images/unmute.png")
+        self.back = pygame.image.load("images/back.png")
+        self.start = pygame.image.load("images/start.png")
+        self.you = pygame.image.load("images/woman1.png")
+        self.woman = pygame.image.load("images/woman.png")
+        self.man = pygame.image.load("images/man.png")
+        self.hint = pygame.image.load("images/hint.png")
+        self.cardback = pygame.image.load("images/cardback.jpg")
 
 
 class Sound(object):
     def __init__(self):
-        # self.back_g = "../sounds/bg.wav"
+        self.bgmusic = "./sounds/bgmusic.mp3"
         self.shuffled = pygame.mixer.Sound('./sounds/shuffle.wav')
         self.click = pygame.mixer.Sound('./sounds/clicked.wav')
 
@@ -73,9 +79,5 @@ class ButtonImage():
         self.clickable = False
 
     def draw(self, screen):
-        # action = False
-        # pos = pygame.mouse.get_pos()
-        # screen.blit(self.image, self.rect)
         self.clickable = True
         screen.blit(self.image, (self.rect.x, self.rect.y))
-        # return action
