@@ -1,6 +1,10 @@
 import random
+import itertools
 
-class Player:
+class Players:
+
+    maximum_hand_size = 20
+
     def __init__(self, name, is_computer=False):
         """
         初始化玩家
@@ -8,74 +12,104 @@ class Player:
         :param is_computer: 是否为电脑玩家
         """
         self.name = name
-        self.is_computer = is_computer
         self.hand = []  # 玩家的手牌列表
+        self.add = []
+        self.delete = []
+        self.is_computer = is_computer
 
-    def draw_cards(self, deck, num_cards=1):
-        """
-        从牌堆抽取指定数量的牌
-        :param deck: 当前牌堆
-        :param num_cards: 要抽取的牌数
-        """
-        for _ in range(min(num_cards, len(deck))):
-            self.hand.append(deck.pop())
+    def initialize_state(self):
+        """reset the status"""
+        self.hand.clear()
+        self.add.clear()
+        self.delete.clear()
 
-    def find_valid_groups(self):
-        """
-        找到手牌中所有可以丢弃的有效卡组
-        :return: 有效卡组列表
-        """
-        sequences = []
-        sets = []
-        colors = {}
-        numbers = {}
+    def clear_temp_list(self):
+        self.add.clear()
+        self.delete.clear()
 
-        for card in self.hand:
-            colors.setdefault(card["color"], []).append(card["number"])
-            numbers.setdefault(card["number"], []).append(card["color"])
+    def draw_cards(self, deck, num_cards) -> bool:
+        if (len(self.hand) + num_cards) <= self.maximum_hand_size:
+            self.clear_temp_list()
+            cards = deck.draw(num_cards)
+            for card in cards:
+                self.add.append(card)
+            self.hand.extend(cards)
+            return True
 
-        # 检查连续同色序列
-        for color, nums in colors.items():
-            nums.sort()
-            temp_seq = []
-            for i in nums:
-                if temp_seq and i != temp_seq[-1] + 1:
-                    if len(temp_seq) >= 3:
-                        sequences.append([{"color": color, "number": n} for n in temp_seq])
-                    temp_seq = []
-                temp_seq.append(i)
-            if len(temp_seq) >= 3:
-                sequences.append([{"color": color, "number": n} for n in temp_seq])
+        return False
 
-        # 检查不同色相同数字
-        for number, cols in numbers.items():
-            if len(set(cols)) >= 3:
-                sets.append([{"color": color, "number": number} for color in cols[:3]])
+    # 从其他玩家手牌中随机取一张卡
+    def take_random_card(self, other_player) -> bool:
+        self.clear_temp_list()
+        other_player.clear_temp_list()
+        if other_player.hand and (len(self.hand) + 1) <= self.maximum_hand_size:
+            card = random.choice(other_player.hand)
+            other_player.delete.append(card)
+            other_player.hand.remove(card)
+            self.add.append(card)
+            self.hand.append(card)
+            return True
+        return False
 
-        return sequences + sets
+    # 验证卡组是否符合丢弃条件，并更新玩家手牌和牌堆
+    def discard_group(self, group, deck) -> bool:
+        self.clear_temp_list()
+        if self.is_valid_group(group):
+            self.delete.clear()
+            for card in group:
+                print(self.hand)
+                print(card)
+                self.hand.remove(card)
+            deck.add_to_deck(group)
+            return True
+        else:
+            return False
 
-    def discard_group(self):
+    # 是否是有效组
+    def is_valid_group(self, group):
+        if len(group) < 3:
+            return False
+
+        group = sorted(group, key=lambda group: group.number)
+
+        # 同样颜色连续数字
+        if all(card.color == group[0].color for card in group) and \
+           all(group[i].number == group[i - 1].number + 1 for i in range(1, len(group))):
+            return True
+        # 同样数字不同颜色
+        if all(card.number == group[0].number for card in group) and \
+           len(set(card.color for card in group)) == len(group):
+            return True
+        return False
+
+    # 检查玩家手牌是否为空
+    def has_empty_hand(self):
+        self.clear_temp_list()
+        return len(self.hand) == 0
+
+
+class AIPlayer(Players):
+
+    def __init__(self, name):
+        super().__init__(name)
+
+    def find_valid_group(self) -> list:
         """
-        丢弃找到的有效卡组
-        :return: 丢弃的卡组列表
+        return a valid combination in collection.
         """
-        valid_groups = self.find_valid_groups()
-        if valid_groups:
-            for group in valid_groups:
-                for card in group:
-                    self.hand.remove(card)
-            return valid_groups
-        return []
 
-    def take_random_card(self, opponent):
-        """
-        随机从对手手中抽取一张牌
-        :param opponent: 被抽牌的对手
-        :return: 抽到的牌
-        """
-        if opponent.hand:
-            chosen_card = random.choice(opponent.hand)
-            self.hand.append(chosen_card)
-            opponent.hand.remove(chosen_card)
-            return chosen_card
+        length = len(self.hand)
+        for number in range(length, 2, -1):
+            combinations = itertools.combinations(self.hand, number)
+            for combo in combinations:
+                if self.is_valid_group(combo):
+                    return combo
+
         return None
+
+    def find_largest_valid_group(self) -> list:
+        """
+        return a max valid combination in collection.
+        """
+
+        return self.find_valid_group()
