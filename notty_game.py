@@ -319,6 +319,13 @@ class NottyGame:
                 draw_score = draw_scores[2][1]  # draw 3 cards can get the largerst probability
                 draw_card_number = draw_scores[2][0]
 
+        print("-----")
+        if draw_score < skip_score:
+            draw_score = random.randint(19, 21) * 0.01
+            draw_card_number = random.randint(1, 3)
+            print(draw_score)
+        print("----")
+
         for a in steal_scores:
             if len(self.players[a[0]].hand) < 5:
                 a[1] = 0.0
@@ -366,7 +373,7 @@ class NottyGame:
         else:
             draw_card_number, steal_target, action_scores = self.__get_action_and_scrore(current_ai_id)
             print(action_scores)
-
+            print(self.ai_actions_pool)
             best_action = max(self.ai_actions_pool, key=lambda action: action_scores[action])
             self.ai_actions_pool.remove(best_action)
 
