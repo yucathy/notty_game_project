@@ -18,6 +18,7 @@ def reset(basic):
     }
     basic.currentRound = 1  # current round number
     basic.isAI = False
+    basic.hasWin = False
     basic.init_time = 0
     basic.showDrawCard_time = 0
     basic.showStealCard_time = 0
@@ -42,10 +43,14 @@ def toggleDifficulty(basic,i,direction):
         else:
             basic.currentDifficulty = i + 1
 
-def createSysFont(font,size,text,color,pos):
+def createSysFont(font,size,text,color,pos,isCenter=False):
     fontObj = pygame.font.SysFont(font, size).render(text,True, color)
     fontRect = fontObj.get_rect()
-    fontRect.topleft = pos
+    if isCenter:
+        pos_e = (1000/2-fontObj.get_width()/2,pos[1])
+    else:
+        pos_e = pos
+    fontRect.topleft = pos_e
     return fontObj,fontRect
 
 def renderHandCards(w,h,playerList):
@@ -60,7 +65,7 @@ def renderHandCards(w,h,playerList):
         handLength = len(me["handset"])
         totalWidth = getCardListWidth(handLength)
         for i in range(handLength):
-            mycardImg = pygame.image.load("./images/" + str(me["handset"][i]).lower().replace(" ", "") + ".png")
+            mycardImg = pygame.image.load("./newimages/" + str(me["handset"][i]).lower().replace(" ", "") + ".jpg")
             imgPos = (w / 2 - totalWidth / 2 + 20 * i, 560)
             myCards.append(((mycardImg, imgPos),me["handset"][i]))
         # totalWidth = getCardListWidth(20)
@@ -73,7 +78,7 @@ def renderHandCards(w,h,playerList):
         totalWidth = getCardListWidth(handLength)
         for i in range(handLength):
             leftCardImg = pygame.image.load(
-                "./images/" + str(leftPlayer["handset"][i]).lower().replace(" ", "") + ".png")
+                "./newimages/" + str(leftPlayer["handset"][i]).lower().replace(" ", "") + ".jpg")
             rotatedImg = pygame.transform.rotate(leftCardImg, 270)
             imgPos = (25, h / 2 - totalWidth / 2 + 15 + 20 * i)
             leftPlayerCards.append(((rotatedImg, imgPos),leftPlayer["handset"][i]))
@@ -89,7 +94,7 @@ def renderHandCards(w,h,playerList):
         totalWidth = getCardListWidth(handLength)
         for i in range(handLength):
             rightCardImg = pygame.image.load(
-                "./images/" + str(rightPlayer["handset"][i]).lower().replace(" ", "") + ".png")
+                "./newimages/" + str(rightPlayer["handset"][i]).lower().replace(" ", "") + ".jpg")
             rotatedImg = pygame.transform.rotate(rightCardImg, 90)
             imgPos = (858, h / 2 + totalWidth / 2 + 15 - rotatedImg.get_height() - 20 * i)
             rightPlayerCards.append(((rotatedImg, imgPos),rightPlayer["handset"][i]))
@@ -119,18 +124,18 @@ def renderDrawnCard(w,h,playerList,currentPlayer):
     totalWidth = getDrawnCardWidth(addLength)
     if currentPlayer == 0:
         for i in range(addLength):
-            showcardImg = pygame.image.load("./images/" + str(myAddList[i]).lower().replace(" ", "") + ".png")
+            showcardImg = pygame.image.load("./newimages/" + str(myAddList[i]).lower().replace(" ", "") + ".jpg")
             imgPos = (w / 2 - totalWidth / 2 + 100 * i, 430)
             showCardList.append((showcardImg, imgPos))
     elif currentPlayer == 1:
         for i in range(addLength):
-            showcardImg = pygame.image.load("./images/" + str(myAddList[i]).lower().replace(" ", "") + ".png")
+            showcardImg = pygame.image.load("./newimages/" + str(myAddList[i]).lower().replace(" ", "") + ".jpg")
             rotatedImg = pygame.transform.rotate(showcardImg, 270)
             imgPos = (170, h / 2 - totalWidth / 2 + 15 + 100 * i)
             showCardList.append((rotatedImg, imgPos))
     elif currentPlayer == 2:
         for i in range(addLength):
-            showcardImg = pygame.image.load("./images/" + str(myAddList[i]).lower().replace(" ", "") + ".png")
+            showcardImg = pygame.image.load("./newimages/" + str(myAddList[i]).lower().replace(" ", "") + ".jpg")
             rotatedImg = pygame.transform.rotate(showcardImg, 90)
             imgPos = (720, h / 2 + totalWidth / 2 + 15 - rotatedImg.get_height() - 100 * i)
             showCardList.append((rotatedImg, imgPos))
@@ -139,13 +144,16 @@ def renderDrawnCard(w,h,playerList,currentPlayer):
 def renderMessage(screen,w,basic,type,turn=1,currentPlayer=0,cards=[],targetPlayer=0):
     playerName = basic.vs_players[currentPlayer]
     targetPlayerName = basic.vs_players[targetPlayer]
+    is_or_are = "are" if currentPlayer==0 else "is"
+    has_or_have = "have" if currentPlayer==0 else "has"
     cardStr = ",".join([str(e) for e in cards])
     actionMessage = {
         "select_action": f"Round{turn}: Select one action or skip directly",
-        "show_card": f"Round{turn}: {playerName} has drawn {cardStr} from deck",
-        "draw_from_player": f"Round{turn}: {playerName} has drawn {cardStr} from {targetPlayerName}",
-        "discard_suc": f"Round{turn}: {playerName} has discarded {cardStr}",
+        "show_card": f"Round{turn}: {playerName} {has_or_have} drawn {cardStr} from deck",
+        "draw_from_player": f"Round{turn}: {playerName} {has_or_have} drawn {cardStr} from {targetPlayerName}",
+        "discard_suc": f"Round{turn}: {playerName} {has_or_have} discarded {cardStr}",
         "discard_fail": f"Round{turn}: Not a valid group! Please select again",
+        "discard_fail_ai": f"Round{turn}: {playerName} {is_or_are} trying to discard cards...",
         "skip": f"Round{turn}: {playerName} skipped"
     }
     text = actionMessage[type]
@@ -161,7 +169,7 @@ def renderCurrentPlayerHint(screen,img,currentPlayer):
         1: (90,50),
         2: (870, 50),
     }
-    screen.blit(img.back,pos[currentPlayer])
+    screen.blit(img.arrow,pos[currentPlayer])
 
 def renderRules(screen):
     rulesText = "123"
@@ -181,13 +189,9 @@ def doAIAction(basic, aType, currentAction):
     elif currentAction == 'skip':
         basic.actionType = aType.SKIP
 
-def checkButtClickable(button_obj,type):
-    tempArr = []
-    for e in button_obj.values():
-        tempArr += e
-    allButtons = set(tempArr)
-    notButtons = allButtons.difference(button_obj[type])
-    for butt in button_obj[type]:
+def checkButtClickable(checkButtons,allButtons,type):
+    notButtons = allButtons.difference(checkButtons[type])
+    for butt in checkButtons[type]:
        butt.clickable = True
     for butt in notButtons:
        butt.clickable = False

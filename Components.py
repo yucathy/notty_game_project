@@ -23,6 +23,7 @@ class BasicComponent(object):
         }
         self.currentRound = 1   # current round number
         self.isAI = False
+        self.hasWin = False
         self.init_time = 0
         self.showDrawCard_time = 0
         self.showStealCard_time = 0
@@ -51,24 +52,30 @@ class Image(object):
     def __init__(self):
         self.bgHome = pygame.image.load("images/bg-home.jpg")
         self.bgGame = pygame.image.load("images/bg-game.jpg")
-        self.play = pygame.image.load("images/start.png")
+        self.play = pygame.image.load("images/play.png")
         self.rule = pygame.image.load("images/rule.png")
         self.mute = pygame.image.load("images/mute.png")
         self.unmute = pygame.image.load("images/unmute.png")
         self.back = pygame.image.load("images/back.png")
-        self.start = pygame.image.load("images/start.png")
+        self.start = pygame.image.load("newimages/start.png")
         self.you = pygame.image.load("images/woman1.png")
         self.woman = pygame.image.load("images/woman.png")
         self.man = pygame.image.load("images/man.png")
         self.hint = pygame.image.load("images/hint.png")
-        self.cardback = pygame.image.load("images/cardback.jpg")
+        self.cardback = pygame.image.load("newimages/cardback.png")
+        self.skip = pygame.image.load("newimages/skip.png")
+        self.tryagain = pygame.image.load("newimages/tryagain.png")
+        self.victory = pygame.image.load("newimages/victory.png")
+        self.arrow = pygame.image.load("newimages/arrow.png")
+        # self.playforme = pygame.image.load("newimages/playforme.png")
 
 
 class Sound(object):
     def __init__(self):
-        self.bgmusic = "./sounds/bgmusic.mp3"
         self.shuffled = pygame.mixer.Sound('./sounds/shuffle.wav')
         self.click = pygame.mixer.Sound('./sounds/clicked.wav')
+        self.winner = pygame.mixer.Sound('./sounds/winner.mp3')
+        self.bgmusic = "./sounds/bgmusic.mp3"
 
 
 class ButtonImage():

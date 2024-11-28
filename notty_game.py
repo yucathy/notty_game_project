@@ -1,3 +1,4 @@
+import time
 from enum import Enum
 from collections import Counter
 from itertools import combinations
@@ -19,6 +20,7 @@ class NottyGame:
     max_draw_times_per_turn = 3
     max_steal_times_per_turn = 1
     user_id = 0
+
 
     class ComputerLevel(Enum):
         EASY = 'easy'
@@ -49,6 +51,8 @@ class NottyGame:
         self.deck = Deck()
         self.ai_actions_pool = [action for action in self.GameActions \
                                 if action != self.GameActions.DEAL]
+
+        # self.start_time = time.time()
 
     def __initialize_state(self):
         '''keep players' setting when play again.'''
@@ -99,6 +103,8 @@ class NottyGame:
         self.game_thread = threading.Thread(target=self.__process_turns)
         self.game_thread.start()
 
+        # self.start_time = time.time()
+
     def end_game(self):
         self.running = False
         if self.game_thread:
@@ -111,6 +117,12 @@ class NottyGame:
         self.game_status["action_success"] = action_success
         self.game_status["turns_count"] = self.turn_count
         self.game_status["winner"] = self.winner
+
+        # end_time = time.time()
+        # print("end_time - self.start_time",end_time - self.start_time)
+        # if end_time - self.start_time > 10:
+        #     self.game_status["winner"] = "Grace"
+
         player_list = []
         for player, active in zip(self.players, active_status):
             sorted_handset = sorted(player.hand, key=lambda card: (card.color, card.number))
