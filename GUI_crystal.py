@@ -57,24 +57,24 @@ class GUI:
         startImg = img.start.convert_alpha()
         startButt = ButtonImage(450, 20, startImg)
         # draw button
-        drawImg = img.back.convert_alpha()
+        drawImg = img.draw.convert_alpha()
         drawButt = ButtonImage(460, 300, drawImg)
-        completeImg = img.back.convert_alpha()
+        completeImg = img.complete.convert_alpha()
         completeButt = ButtonImage(520, 300, completeImg)
         # steal button
-        stealImg = img.back.convert_alpha()
+        stealImg = img.draw.convert_alpha()
         stealButt1 = ButtonImage(60, WINDOW_HEIGHT/2-stealImg.get_height()/2, stealImg)    # left player
         stealButt2 = ButtonImage(900, WINDOW_HEIGHT/2-stealImg.get_height()/2, stealImg)    # right player
         stealButtArr = [stealButt1,stealButt2]
         # discard button
-        discardImg = img.back.convert_alpha()
+        discardImg = img.discard.convert_alpha()
         discardButt = ButtonImage(900, 650, discardImg)
         # skip button
         skipImg = img.skip.convert_alpha()
         skipButt = ButtonImage(910, 640, skipImg)
         # play for me button
         playForMeImg = img.back.convert_alpha()
-        playForMeButt = ButtonImage(950, 600, playForMeImg)
+        playForMeButt = ButtonImage(940, 580, playForMeImg)
         # try again button
         tryAgainImg = img.tryagain.convert_alpha()
         tryAgainButt = ButtonImage(390, 470, tryAgainImg)
@@ -155,6 +155,8 @@ class GUI:
                         player1 = createSysFont("Arial", 20, "Grace", (0, 0, 0), (895, 50))
                         player2 = createSysFont("Arial", 20, "John", (0, 0, 0), (58, 50))
                     screen.blits((player0,player1,player2))
+
+                # current player hint
                 # if basic.actionType != aType.START or basic.actionType != aType.SHUFFLE:
                 #     renderCurrentPlayerHint(screen,img,basic.currentPlayer)
 
@@ -206,14 +208,16 @@ class GUI:
                         skipButt.draw(screen)
                         discardButt.clickable = False
                         if basic.actionNum["draw"] == 0:
-                            drawButt.draw(screen)
-                            drawButt.clickable = completeButt.clickable = True
+                            if len(basic.allHandCard[0]["surfaces"]) < 20:
+                                drawButt.draw(screen)
+                                drawButt.clickable = completeButt.clickable = True
                         if basic.actionNum["steal"] == 0:
-                            stealButt1.draw(screen)
-                            stealButt1.clickable = True
-                            if len(basic.vs_players) == 3:
-                                stealButt2.draw(screen)
-                                stealButt2.clickable = True
+                            if len(basic.allHandCard[0]["surfaces"]) < 20:
+                                stealButt1.draw(screen)
+                                stealButt1.clickable = True
+                                if len(basic.vs_players) == 3:
+                                    stealButt2.draw(screen)
+                                    stealButt2.clickable = True
                         if basic.actionNum["draw"] == 0 and basic.actionNum["steal"] == 0:
                             playForMeButt.draw(screen)
                     basic.showDrawCard_time = basic.showStealCard_time = basic.showDiscard_time = basic.showSkip_time = 0
@@ -429,16 +433,17 @@ class GUI:
                             basic.actionType = aType.INIT
                         # draw cards
                         if drawButt.rect.collidepoint(event.pos) and drawButt.clickable:
-                            if basic.drawnDeckNum < 3:
-                                if musicOn:
-                                    sound.click.play()
-                                basic.drawnDeckNum += 1
-                                basic.actionType = aType.DRAW
-                            else:
-                                drawButt.clickable = False
-                            for stealButt in stealButtArr:
-                                stealButt.clickable = False
-                            discardButt.clickable = skipButt.clickable = playForMeButt.clickable = False
+                            if len(basic.allHandCard[0]["surfaces"]) + basic.drawnDeckNum < 20:
+                                if basic.drawnDeckNum < 3:
+                                    if musicOn:
+                                        sound.click.play()
+                                    basic.drawnDeckNum += 1
+                                    basic.actionType = aType.DRAW
+                                else:
+                                    drawButt.clickable = False
+                                for stealButt in stealButtArr:
+                                    stealButt.clickable = False
+                                discardButt.clickable = skipButt.clickable = playForMeButt.clickable = False
                         # complete draw action
                         if completeButt.rect.collidepoint(event.pos) and completeButt.clickable:
                             if basic.drawnDeckNum > 0:

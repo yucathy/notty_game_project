@@ -50,23 +50,25 @@ class ActionType(object):
 
 class Image(object):
     def __init__(self):
-        self.bgHome = pygame.image.load("images/bg-home.jpg")
-        self.bgGame = pygame.image.load("images/bg-game.jpg")
+        self.bgHome = pygame.image.load("newimages/bg-home.jpg")
+        self.bgGame = pygame.image.load("newimages/bg-game.jpg")
         self.play = pygame.image.load("images/play.png")
         self.rule = pygame.image.load("images/rule.png")
         self.mute = pygame.image.load("images/mute.png")
         self.unmute = pygame.image.load("images/unmute.png")
-        self.back = pygame.image.load("images/back.png")
+        self.back = pygame.image.load("newimages/back.png")
         self.start = pygame.image.load("newimages/start.png")
-        self.you = pygame.image.load("images/woman1.png")
-        self.woman = pygame.image.load("images/woman.png")
-        self.man = pygame.image.load("images/man.png")
-        self.hint = pygame.image.load("images/hint.png")
+        self.you = pygame.image.load("newimages/woman1.png")
+        self.woman = pygame.image.load("newimages/woman.png")
+        self.man = pygame.image.load("newimages/man.png")
         self.cardback = pygame.image.load("newimages/cardback.png")
         self.skip = pygame.image.load("newimages/skip.png")
+        self.arrow = pygame.image.load("newimages/arrow.png")
+        self.draw = pygame.image.load("newimages/draw.png")
+        self.complete = pygame.image.load("newimages/complete.png")
+        self.discard = pygame.image.load("newimages/discard.png")
         self.tryagain = pygame.image.load("newimages/tryagain.png")
         self.victory = pygame.image.load("newimages/victory.png")
-        self.arrow = pygame.image.load("newimages/arrow.png")
         # self.playforme = pygame.image.load("newimages/playforme.png")
 
 
