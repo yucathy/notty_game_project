@@ -366,6 +366,9 @@ class NottyGame:
     def __ai_take_medium_action(self, current_ai_id):
         if self.GameActions.DISCARD in self.ai_actions_pool:
             self.ai_actions_pool.remove(self.GameActions.DISCARD)
+        else:
+            print("discard not in the pool...")
+            print(self.ai_actions_pool)
         discarded_cards = list(self.players[current_ai_id].find_largest_valid_group())
         if discarded_cards:
             self.send_action(self.GameActions.DISCARD, current_ai_id, discarded_cards)
@@ -374,9 +377,12 @@ class NottyGame:
             draw_card_number, steal_target, action_scores = self.__get_action_and_scrore(current_ai_id)
             print(action_scores)
             print(self.ai_actions_pool)
-            best_action = max(self.ai_actions_pool, key=lambda action: action_scores[action])
-            self.ai_actions_pool.remove(best_action)
-
+            try:
+                best_action = max(self.ai_actions_pool, key=lambda action: action_scores[action])
+                self.ai_actions_pool.remove(best_action)
+            except ValueError:
+                print("DISCARD not found in ai_actions_pool")
+            
             if best_action == self.GameActions.DRAW:
                 self.send_action(best_action, current_ai_id, draw_card_number)
             elif best_action == self.GameActions.STEAL:
