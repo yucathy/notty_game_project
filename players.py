@@ -56,7 +56,6 @@ class Players:
             return False
 
     # 是否是有效组
-    # TODO：需要再看一下
     def is_valid_group(self, group):
         if len(group) < 3:
             return False
