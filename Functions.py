@@ -165,11 +165,11 @@ def renderMessage(screen,w,basic,type,turn=1,currentPlayer=0,cards=[],targetPlay
 
 def renderCurrentPlayerHint(screen,img,currentPlayer):
     pos = {
-        0: (100,590),
-        1: (90,50),
-        2: (870, 50),
+        0: (187,540),
+        1: (115,50),
+        2: (845,50),
     }
-    screen.blit(img.arrow,pos[currentPlayer])
+    screen.blit(img.hint,pos[currentPlayer])
 
 def renderRules(screen):
     rulesText = "123"

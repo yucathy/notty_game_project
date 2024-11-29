@@ -103,8 +103,6 @@ class NottyGame:
         self.game_thread = threading.Thread(target=self.__process_turns)
         self.game_thread.start()
 
-        # self.start_time = time.time()
-
     def end_game(self):
         self.running = False
         if self.game_thread:
