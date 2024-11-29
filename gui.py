@@ -7,10 +7,10 @@ class NottyGUI:
         self.nottygame = nottygame
         self.game_status = {}
         pass
-        
+
     def run(self):
 
-        self.nottygame.setup(2, ['Amy', "Cathy"], self.nottygame.ComputerLevel.EASY) # name can be None.
+        self.nottygame.setup(2, ['Amy', "Cathy"], self.nottygame.ComputerLevel.HARD) # name can be None.
 
         self.nottygame.start_game()
 
@@ -25,9 +25,9 @@ class NottyGUI:
             # draw a card
             for _ in range(3):
                 self.nottygame.send_action(self.nottygame.GameActions.DRAW, self.nottygame.user_id, 1)
-                time.sleep(0.02)
+                time.sleep(0.3)
 
-                self.game_status = self.nottygame.render_queue.get(timeout= 0.033)
+                self.game_status = self.nottygame.render_queue.get(timeout=0.5)
                 print(self.game_status)
                 print("-----------------------")
 
@@ -39,7 +39,7 @@ class NottyGUI:
 
             self.nottygame.send_action(self.nottygame.GameActions.DISCARD, self.nottygame.user_id, discarded_list)
 
-            # self.nottygame.send_action(self.nottygame.GameActions.DISCARD, 
+            # self.nottygame.send_action(self.nottygame.GameActions.DISCARD,
             #                               self.nottygame.user_id,
             #                               [self.nottygame.create_card("Blue", 4),
             #                                self.nottygame.create_card("Yellow", 4),
@@ -51,7 +51,7 @@ class NottyGUI:
             print("-----------------------")
 
             # steal card
-            self.nottygame.send_action(self.nottygame.GameActions.STEAL, self.nottygame.user_id, 1) 
+            self.nottygame.send_action(self.nottygame.GameActions.STEAL, self.nottygame.user_id, 1)
 
             time.sleep(0.02)
 
@@ -87,7 +87,7 @@ class NottyGUI:
         print("ai play for me now!!!")
 
         while True:
-            self.nottygame.ai_take_action(self.game_status['next_player'])
+            self.nottygame.ai_take_action(self.nottygame.user_id)
 
             try:
                 self.game_status = self.nottygame.render_queue.get(timeout= 0.033)

@@ -1,48 +1,38 @@
 import random
 import itertools
-
 class Players:
 
-    maximum_hand_size = 20
-
-    def __init__(self, name, is_computer=False):
-        """
-        初始化玩家
-        :param name: 玩家名称
-        :param is_computer: 是否为电脑玩家
-        """
+    maxinum_hand_size = 20
+    
+    def __init__(self, name):
         self.name = name
-        self.hand = []  # 玩家的手牌列表
+        self.hand = []
         self.add = []
         self.delete = []
-        self.is_computer = is_computer
-
+        
     def initialize_state(self):
-        """reset the status"""
+        '''reset the status'''
         self.hand.clear()
         self.add.clear()
         self.delete.clear()
-
+        
     def clear_temp_list(self):
         self.add.clear()
         self.delete.clear()
 
     def draw_cards(self, deck, num_cards) -> bool:
-        if (len(self.hand) + num_cards) <= self.maximum_hand_size:
-            self.clear_temp_list()
+        if (len(self.hand) + num_cards) <= self.maxinum_hand_size:
             cards = deck.draw(num_cards)
             for card in cards:
                 self.add.append(card)
             self.hand.extend(cards)
             return True
-
+        
         return False
 
     # 从其他玩家手牌中随机取一张卡
     def take_random_card(self, other_player) -> bool:
-        self.clear_temp_list()
-        other_player.clear_temp_list()
-        if other_player.hand and (len(self.hand) + 1) <= self.maximum_hand_size:
+        if other_player.hand and (len(self.hand) + 1) <= self.maxinum_hand_size:
             card = random.choice(other_player.hand)
             other_player.delete.append(card)
             other_player.hand.remove(card)
@@ -53,12 +43,12 @@ class Players:
 
     # 验证卡组是否符合丢弃条件，并更新玩家手牌和牌堆
     def discard_group(self, group, deck) -> bool:
-        self.clear_temp_list()
         if self.is_valid_group(group):
-            self.delete.clear()
             for card in group:
                 print(self.hand)
                 print(card)
+                self.delete.append(card)
+                print(self.delete)
                 self.hand.remove(card)
             deck.add_to_deck(group)
             return True
@@ -66,10 +56,11 @@ class Players:
             return False
 
     # 是否是有效组
+    # TODO：需要再看一下
     def is_valid_group(self, group):
         if len(group) < 3:
             return False
-
+        
         group = sorted(group, key=lambda group: group.number)
 
         # 同样颜色连续数字
@@ -84,19 +75,18 @@ class Players:
 
     # 检查玩家手牌是否为空
     def has_empty_hand(self):
-        self.clear_temp_list()
         return len(self.hand) == 0
-
+    
 
 class AIPlayer(Players):
-
+    
     def __init__(self, name):
         super().__init__(name)
 
     def find_valid_group(self) -> list:
-        """
+        '''
         return a valid combination in collection.
-        """
+        '''
 
         length = len(self.hand)
         for number in range(length, 2, -1):
@@ -104,12 +94,12 @@ class AIPlayer(Players):
             for combo in combinations:
                 if self.is_valid_group(combo):
                     return combo
-
-        return None
-
+        
+        return []
+    
     def find_largest_valid_group(self) -> list:
-        """
+        '''
         return a max valid combination in collection.
-        """
+        '''
 
         return self.find_valid_group()
