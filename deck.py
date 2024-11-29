@@ -2,7 +2,7 @@ import random
 
 from Card import Card
 
-
+# jiayidiandian1
 class Deck:
 
     def __init__(self):
