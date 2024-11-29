@@ -62,7 +62,7 @@ class GUI:
         completeImg = img.complete.convert_alpha()
         completeButt = ButtonImage(520, 300, completeImg)
         # steal button
-        stealImg = img.draw.convert_alpha()
+        stealImg = img.steal.convert_alpha()
         stealButt1 = ButtonImage(60, WINDOW_HEIGHT/2-stealImg.get_height()/2, stealImg)    # left player
         stealButt2 = ButtonImage(900, WINDOW_HEIGHT/2-stealImg.get_height()/2, stealImg)    # right player
         stealButtArr = [stealButt1,stealButt2]

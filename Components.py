@@ -71,6 +71,24 @@ class Image(object):
         self.victory = pygame.image.load("newimages/victory.png")
         # self.playforme = pygame.image.load("newimages/playforme.png")
 
+        self.play = pygame.image.load("uncheckImages/start.png")
+        self.start = pygame.image.load("uncheckImages/play.png")
+        self.rule = pygame.image.load("uncheckImages/help.png")
+
+        # self.back = pygame.image.load("uncheckImages/back.png")
+        # self.draw = pygame.image.load("uncheckImages/draw.png")
+        # self.skip = pygame.image.load("uncheckImages/skip.png")
+        # self.discard = pygame.image.load("uncheckImages/discard.png")
+        # self.complete = pygame.image.load("uncheckImages/confirm.png")
+        # self.steal = pygame.image.load("uncheckImages/steal.png")
+
+        self.back = pygame.image.load("uncheckImages/0back.png")
+        self.draw = pygame.image.load("uncheckImages/0draw.png")
+        self.skip = pygame.image.load("uncheckImages/0skip.png")
+        self.discard = pygame.image.load("uncheckImages/0discard.png")
+        self.complete = pygame.image.load("uncheckImages/0confirm.png")
+        self.steal = pygame.image.load("uncheckImages/0steal.png")
+
 
 class Sound(object):
     def __init__(self):
