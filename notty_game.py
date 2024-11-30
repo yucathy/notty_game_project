@@ -2,6 +2,7 @@ import time
 from enum import Enum
 from collections import Counter
 from itertools import combinations
+from multiprocessing import Pool
 from Card import Card
 from deck import Deck
 from players import Players, AIPlayer
@@ -71,6 +72,7 @@ class NottyGame:
 
         for player in self.players:
             player.initialize_state()
+        print("----- restart!!!!")
 
     def setup(self, player_count: int, player_name: list, computer_level: ComputerLevel):
         '''
@@ -102,6 +104,7 @@ class NottyGame:
         self.running = True
         self.game_thread = threading.Thread(target=self.__process_turns)
         self.game_thread.start()
+        print("start_game~~~~~~")
 
     def end_game(self):
         self.running = False
@@ -184,6 +187,11 @@ class NottyGame:
                     else:
                         action_success = False
                         error_info = "only can steal one time per turn or the type is error"
+
+                    for player in self.players:
+                        if player.has_empty_hand():
+                            self.winner = player.name
+
                     active_status[action_user_id] = True
 
                 elif user_action == self.GameActions.DISCARD:
@@ -239,6 +247,9 @@ class NottyGame:
         """
         color, number = card_str.split()
         return Card(color=color, number=int(number))
+    
+    def is_valid_combination(comb, valid_cards_set):
+        return any(c in valid_cards_set for c in comb)
 
     def __probability_of_valid_group(self, current_player, target_cardset, card_amount):
         output = []
@@ -261,14 +272,24 @@ class NottyGame:
         print(valid_group_count, total_target_cards, valid_group_count / total_target_cards)
         print(valid_cards)
         print("wwwww")
+
         output.append([1, valid_group_count / total_target_cards if total_target_cards > 0 else 0.0])
         if card_amount == 1:
             return output
         else:
             for i in range(2, 4):
                 all_combinations = list(combinations(target_cardset_str, i))
-                filtered_combinations = [comb for comb in all_combinations if any(c in valid_cards for c in comb)]
+                valid_cards_set = set(valid_cards)
+                filtered_combinations = [comb for comb in all_combinations if any(c in valid_cards_set for c in comb)]
                 total_filtered_count = len(filtered_combinations)
+
+                # with Pool() as pool:
+                #     valid_results = pool.starmap(
+                #     self.is_valid_combination,
+                #     [(comb, valid_cards_set) for comb in all_combinations]
+                #     )
+
+                # total_filtered_count = sum(valid_results)
                 total_comb_count = len(all_combinations)
                 output.append([i, total_filtered_count / total_comb_count])
                 if card_amount == 2:
@@ -317,12 +338,12 @@ class NottyGame:
                 draw_score = draw_scores[2][1]  # draw 3 cards can get the largerst probability
                 draw_card_number = draw_scores[2][0]
 
-        print("-----")
-        if draw_score < skip_score:
-            draw_score = random.randint(19, 21) * 0.01
-            draw_card_number = random.randint(1, 3)
-            print(draw_score)
-        print("----")
+        # print("-----")
+        # if draw_score < skip_score:
+        #     draw_score = random.randint(19, 21) * 0.01
+        #     draw_card_number = random.randint(1, 3)
+        #     print(draw_score)
+        # print("----")
 
         for a in steal_scores:
             if len(self.players[a[0]].hand) < 5:
