@@ -24,6 +24,7 @@ class BasicComponent(object):
         self.currentRound = 1   # current round number
         self.isAI = False
         self.hasWin = False
+        self.winMusic = True
         self.init_time = 0
         self.showDrawCard_time = 0
         self.showStealCard_time = 0

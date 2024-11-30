@@ -343,7 +343,8 @@ class GUI:
                     self.nottygame.ai_take_action(basic.currentPlayer)
 
                 # winner congratulations
-                if len(self.game_status) > 0 and self.game_status['winner'] is not None:
+                if (not basic.hasWin) and (len(self.game_status) > 0) and (self.game_status['winner'] is not None):
+                    print("self.game_status---win---",self.game_status)
                     basic.actionType = aType.SHUFFLE
                     checkButtClickable(checkButtons, allButtons, "win")
                     screen.blit(img.victory, (WINDOW_WIDTH / 2 - img.victory.get_width() / 2,
@@ -354,12 +355,11 @@ class GUI:
                     screen.blits((fontCongratulation, fontWinner))
                     restartButt.draw(screen)
                     quitButt.draw(screen)
-                    if soundOn and (not basic.hasWin):
+                    if soundOn and basic.winMusic:
                         pygame.mixer.music.stop()
-                        pygame.mixer.music.unload()
                         sound.winner.set_volume(0.3)
                         sound.winner.play()
-                        basic.hasWin = True
+                        basic.winMusic = False
 
 
             for event in pygame.event.get():
@@ -520,13 +520,17 @@ class GUI:
                             if soundOn:
                                 sound.click.play()
                             reset(basic)
+                            basic.hasWin = True
                             self.nottygame.end_game()
                             self.nottygame.start_game()
+                            pygame.mixer.music.play(-1)
                         if quitButt.rect.collidepoint(event.pos) and quitButt.clickable:
                             if soundOn:
                                 sound.click.play()
                             reset(basic)
+                            basic.hasWin = True
                             self.nottygame.end_game()
+                            pygame.mixer.music.play(-1)
                             basic.play_page = "HOME"
 
 
