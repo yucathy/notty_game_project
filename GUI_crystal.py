@@ -32,7 +32,6 @@ class GUI:
         playButt = ButtonImage(420, 200, playImg)
         ruleImg = img.rule.convert_alpha()
         ruleButt = ButtonImage(620, 200, ruleImg)
-
         # back button
         backImg = img.back.convert_alpha()
         backButt = ButtonImage(10, 10, backImg)
@@ -46,16 +45,28 @@ class GUI:
         unmusicImg = img.nomusic.convert_alpha()
         unmusicButt = ButtonImage(920, 12, unmusicImg)
 
-        # player name and difficulty
-        fontSelect = createSysFont("Arial", 24, "You VS", (0, 0, 0), (420, 350))
-        fontName1 = createSysFont("Arial", 24, "Grace", (0, 0, 0), (600, 350))
-        fontName2 = createSysFont("Arial", 24, "John", (0, 0, 0), (700, 350))
-        fontLevel = createSysFont("Arial", 24, "Difficulty: ", (0, 0, 0), (420, 450))
-        fontLevelArr = []
-        for ele in basic.difficulty.values():
-            fontLevelArr.append(createSysFont("Arial", 24, ele.upper(), (0, 0, 0), (620, 450)))
-        fontLeft = createSysFont("Arial", 24, "<", (0, 0, 0), (600, 450))
-        fontRight = createSysFont("Arial", 24, ">", (0, 0, 0), (720, 450))
+        # computer player name
+        # fontSelect = createSysFont("Arial", 24, "You VS", (0, 0, 0), (420, 350))
+        playName1 = img.woman_color
+        playName1_black = img.woman_black
+        playName1_rect = playName1.get_rect()
+        playName1_rect.topleft = (600,330)
+        playName2 = img.man_color
+        playName2_black = img.man_black
+        playName2_rect = playName2.get_rect()
+        playName2_rect.topleft = (700, 330)
+
+        # difficulty
+        # fontLevel = createSysFont("Arial", 24, "Difficulty: ", (0, 0, 0), (420, 450))
+        levelTitle = img.level
+        levelObj = {0: [img.easy,(635,470)], 1: [img.medium,(617,470)], 2: [img.hard,(635,470)]}
+        levelObj_small = {0: [img.easy_small, (850, 15)], 1: [img.medium_small, (820, 15)], 2: [img.hard_small, (850, 15)]}
+        arrowLeft = img.arrow_left
+        arrowLeft_rect = arrowLeft.get_rect()
+        arrowLeft_rect.topleft = (565, 470)
+        arrowRight = img.arrow_right
+        arrowRight_rect = arrowRight.get_rect()
+        arrowRight_rect.topleft = (760, 470)
 
         # deal card button
         startImg = img.start.convert_alpha()
@@ -82,24 +93,26 @@ class GUI:
         # try again button
         restartImg = img.restart.convert_alpha()
         restartButt = ButtonImage(390, 470, restartImg)
-        # quit button
-        quitImg = img.home.convert_alpha()
-        quitButt = ButtonImage(510, 470, quitImg)
+        # home button
+        homeImg = img.home.convert_alpha()
+        homeButt = ButtonImage(510, 470, homeImg)
+        homeImg_info = img.home1.convert_alpha()
+        homeButt_info = ButtonImage(730, 80, homeImg_info)
 
         checkButtons = {
             "home": [playButt, ruleButt, muteButt, unmuteButt, musicButt, unmusicButt],
-            "info": [backButt],
+            "info": [homeButt_info],
             "start": [startButt, backButt, muteButt, unmuteButt, musicButt, unmusicButt],
             "complete_draw": [skipButt, backButt, muteButt, unmuteButt, musicButt, unmusicButt],
             "select_discard": [discardButt, backButt, muteButt, unmuteButt, musicButt, unmusicButt],
-            "win": [restartButt, quitButt, backButt]
+            "win": [restartButt, homeButt, backButt]
         }
-        allButtons = {playButt, ruleButt, backButt, muteButt, unmuteButt, musicButt, unmusicButt, startButt, drawButt, completeButt, stealButt1, stealButt2, discardButt, skipButt, playForMeButt, restartButt, quitButt}
+        allButtons = {playButt, ruleButt, backButt, muteButt, unmuteButt, musicButt, unmusicButt, startButt, drawButt, completeButt, stealButt1, stealButt2, discardButt, skipButt, playForMeButt, restartButt, homeButt, homeButt_info}
 
 
         while active:
             clock.tick(30)
-            screen.fill((202,228,241))
+            # screen.fill((202,228,241))
             current_time = pygame.time.get_ticks()
 
             if not self.nottygame.render_queue.empty():
@@ -114,15 +127,31 @@ class GUI:
                 playButt.draw(screen)
                 ruleButt.draw(screen)
                 checkButtClickable(checkButtons,allButtons,"home")
-                # player and difficulty
-                screen.blits((fontSelect,fontName1,fontName2,fontLevel,fontLevelArr[basic.currentDifficulty],fontLeft,fontRight))
+                # screen.blits((fontSelect,fontName1,fontName2,fontLevel,fontLevelArr[basic.currentDifficulty],fontLeft,fontRight))
+                # player
+                if "Grace" in basic.vs_players:
+                    screen.blit(playName1, playName1_rect)
+                else:
+                    screen.blit(playName1_black, playName1_rect)
+                if "John" in basic.vs_players:
+                    screen.blit(playName2, playName2_rect)
+                else:
+                    screen.blit(playName2_black, playName2_rect)
+                # difficulty
+                screen.blit(levelTitle,(420,470))
+                screen.blit(levelObj[basic.currentDifficulty][0], levelObj[basic.currentDifficulty][1])
+                screen.blit(arrowLeft,arrowLeft_rect)
+                screen.blit(arrowRight, arrowRight_rect)
+
 
             elif basic.play_page == "INFO":
-                backButt.draw(screen)
+                screen.blit(img.rulepage, (0, 0))
+                homeButt_info.draw(screen)
                 checkButtClickable(checkButtons,allButtons,"info")
 
             elif basic.play_page == "GAME":
                 screen.blit(img.bgGame, (0, 0))
+                screen.blit(levelObj_small[basic.currentDifficulty][0], levelObj_small[basic.currentDifficulty][1])
                 backButt.draw(screen)
                 if soundOn:
                     muteButt.draw(screen)
@@ -353,7 +382,7 @@ class GUI:
                                                (0, 0, 0), (350, 410), True)
                     screen.blits((fontCongratulation, fontWinner))
                     restartButt.draw(screen)
-                    quitButt.draw(screen)
+                    homeButt.draw(screen)
                     if soundOn and (not basic.hasWin):
                         pygame.mixer.music.stop()
                         pygame.mixer.music.unload()
@@ -386,7 +415,8 @@ class GUI:
                             if soundOn:
                                 sound.click.play()
                                 basic.play_page = "INFO"
-                        if backButt.rect.collidepoint(event.pos) and backButt.clickable:
+                        if ((backButt.rect.collidepoint(event.pos) and backButt.clickable)
+                                or (homeButt_info.rect.collidepoint(event.pos) and homeButt_info.clickable)):
                             if basic.play_page == "GAME" or basic.play_page == "INFO":
                                 if soundOn:
                                     sound.click.play()
@@ -412,7 +442,7 @@ class GUI:
                                 pygame.mixer.music.unpause()
                                 musicOn = True
                         # select VS player
-                        if fontName1[1].collidepoint(event.pos):
+                        if playName1_rect.collidepoint(event.pos) or playName1_rect.collidepoint(event.pos):
                             if soundOn:
                                 sound.click.play()
                             if "Grace" in basic.vs_players:
@@ -420,7 +450,7 @@ class GUI:
                             else:
                                 basic.vs_players.append("Grace")
                             print(basic.vs_players)
-                        if fontName2[1].collidepoint(event.pos):
+                        if playName2_rect.collidepoint(event.pos) or playName2_rect.collidepoint(event.pos):
                             if soundOn:
                                 sound.click.play()
                             if "John" in basic.vs_players:
@@ -429,11 +459,11 @@ class GUI:
                                 basic.vs_players.append("John")
                             print(basic.vs_players)
                         # toggle difficulty
-                        if fontLeft[1].collidepoint(event.pos):
+                        if arrowLeft_rect.collidepoint(event.pos):
                             if soundOn:
                                 sound.click.play()
                             toggleDifficulty(basic,basic.currentDifficulty,"left")
-                        if fontRight[1].collidepoint(event.pos):
+                        if arrowRight_rect.collidepoint(event.pos):
                             if soundOn:
                                 sound.click.play()
                             toggleDifficulty(basic,basic.currentDifficulty,"right")
@@ -522,7 +552,7 @@ class GUI:
                             reset(basic)
                             self.nottygame.end_game()
                             self.nottygame.start_game()
-                        if quitButt.rect.collidepoint(event.pos) and quitButt.clickable:
+                        if homeButt.rect.collidepoint(event.pos) and homeButt.clickable:
                             if soundOn:
                                 sound.click.play()
                             reset(basic)
