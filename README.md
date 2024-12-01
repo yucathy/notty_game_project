@@ -59,7 +59,6 @@
    python main.py
 
 ### 项目文件结构
-    ```plaintext
     notty_game_project/
     │
     ├── Card.py                # 定义 Card 卡牌对象类
