@@ -320,6 +320,7 @@ class NottyGame:
         draw_scores = self.__evaluate_action(current_ai_id, self.GameActions.DRAW)  # [card_amount, score]
 
         draw_card_number = 0
+        draw_score = 0.0
         if len(self.players[current_ai_id].hand) == 1 or \
                 len(self.players[current_ai_id].hand) == 18:
             draw_score = draw_scores[1][1]  # only want to draw 2 cards
