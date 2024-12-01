@@ -105,7 +105,8 @@ class GUI:
             "start": [startButt, backButt, muteButt, unmuteButt, musicButt, unmusicButt],
             "complete_draw": [skipButt, backButt, muteButt, unmuteButt, musicButt, unmusicButt],
             "select_discard": [discardButt, backButt, muteButt, unmuteButt, musicButt, unmusicButt],
-            "win": [restartButt, homeButt, backButt]
+            "win": [restartButt, homeButt, backButt],
+            "isAI": [backButt, muteButt, unmuteButt, musicButt, unmusicButt]
         }
         allButtons = {playButt, ruleButt, backButt, muteButt, unmuteButt, musicButt, unmusicButt, startButt, drawButt, completeButt, stealButt1, stealButt2, discardButt, skipButt, playForMeButt, restartButt, homeButt, homeButt_info}
 
@@ -209,6 +210,10 @@ class GUI:
                 totalWidth = getCardListWidth(12)
                 for i in range(12):
                     screen.blit(img.cardback, (WINDOW_WIDTH/2-totalWidth/2 + 20 * i, 270))
+
+                # disable all function buttons during AI mode
+                if basic.isAI:
+                    checkButtClickable(checkButtons, allButtons,"isAI")
 
                 # hand cards init
                 if basic.actionType == aType.INIT:
