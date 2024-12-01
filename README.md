@@ -1,11 +1,88 @@
-# Programming Coursework 
+Notty - A Pygame-Based Card Game
+游戏简介
+Notty 是一个基于 Pygame 开发的纸牌小游戏，支持两至三名玩家对战。
+游戏中，玩家通过抽卡、偷牌和丢牌等策略，争取尽早清空手牌以赢得比赛。
 
-**The goal of the coursework is to design a game called NottyGame, which is a card game for 2-3 players.**
+游戏特色
+自定义界面：游戏界面由小组自主设计，精美且直观。
+多难度 AI：三档 AI 难度模式，挑战你的策略水平：
+简单模式：玩家抽卡时总能获得能够凑成有效组的卡牌。
+中等模式：AI根据概率分析选择最佳动作。
+困难模式：加入干扰对手的策略，进一步增加挑战性。
+全局透明手牌：所有玩家手牌始终面朝上，策略尽显。
+随机性与重平衡：每次丢牌后牌堆重新洗牌，增加不可预测性。
+游戏规则
+卡牌组成
 
+颜色：红色、蓝色、绿色和黄色。
+数字：1 至 10。
+每种颜色和数字的组合有两张卡，共 80 张牌。
+游戏开始
 
+将牌堆洗牌，每位玩家发 5 张牌。
+所有玩家的手牌始终明牌展示。
+游戏流程
 
-## Branch Management Guidences:
+玩家轮流进行以下操作（每个动作每轮有特定次数限制）：
+抽牌：从牌堆中抽 1 至 3 张牌（仅一次）。
+偷牌：随机从另一位玩家手牌中抽取一张（仅一次）。
+丢牌：丢弃有效组合（不限次数）：
+同色序列：至少三张同色、连续数字的卡牌。
+同号组合：至少三张不同色、相同数字的卡牌（颜色不可重复）。
+手牌限制：最多 20 张，若超过则限制部分操作。
+胜利条件
+率先清空手牌的玩家获胜。
 
-When developing your code, please remember to switch to the `dev` branch.
-Only merge to the `main` branch after all the tests have been done.
+安装与运行
+系统要求
+Python 3.7 或以上版本
+Pygame 库
+安装步骤
+克隆代码库：
+bash
+复制代码
+git clone <repository_url>
+cd notty_game_project
+安装依赖：
+bash
+复制代码
+pip install -r requirements.txt
+运行游戏：
+bash
+复制代码
+python main.py
+项目文件结构
+bash
+复制代码
+notty_game_project/
+│
+├── deck.py                # 定义 Card 和 Deck 类
+├── players.py             # 定义 Actions, ComputerPlayer1, ComputerPlayer2 类
+├── notty_game.py          # 主游戏逻辑
+├── gui.py                 # GUI 设计和事件管理
+├── main.py                # 程序入口
+├── material/              # 游戏素材文件夹（图片、音效等）
+├── testCaseDoc/           # 测试用例和问题记录
+├── NottyGame Specification # 项目规格书
+└── README.md              # 项目说明文件
+团队协作与鸣谢
+团队成员
 
+Mingxin Cao - 协作与辅助支持
+Xinyu Liu - 代码及功能测试
+Tzu Chun Yu - 后端逻辑开发
+Siwen Zhao - UI与前端交互设计
+Xiuyuan Tao - UI与前端交互设计
+项目时间线
+
+日期	事件
+11/04-11/21	软件配置与功能开发
+11/22-11/24	问题修复与知识补充
+11/25	功能初对接与基本测试
+11/26-11/29	集中处理问题，完善功能
+11/30-12/02	功能验证与问题复查
+12/03-12/06	文档编写与项目提交
+特别鸣谢
+感谢所有组员的努力以及开源项目 Pygame，为我们提供了强大的游戏开发支持。
+
+游戏预览
