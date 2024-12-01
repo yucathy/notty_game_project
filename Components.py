@@ -24,6 +24,7 @@ class BasicComponent(object):
         self.currentRound = 1   # current round number
         self.isAI = False
         self.hasWin = False
+        self.winMusic = True
         self.init_time = 0
         self.showDrawCard_time = 0
         self.showStealCard_time = 0
@@ -62,7 +63,11 @@ class Image(object):
         self.start = pygame.image.load("newimages/play.png")
         self.you = pygame.image.load("newimages/woman1.png")
         self.woman = pygame.image.load("newimages/woman.png")
+        self.woman_black = pygame.image.load("newimages/woman_black.png")
+        self.woman_color = pygame.image.load("newimages/woman_color.png")
         self.man = pygame.image.load("newimages/man.png")
+        self.man_black = pygame.image.load("newimages/man_black.png")
+        self.man_color = pygame.image.load("newimages/man_color.png")
         self.cardback = pygame.image.load("newimages/cardback.jpg")
         self.draw = pygame.image.load("newimages/draw.png")
         self.draw_yellow = pygame.image.load("newimages/draw_yellow.png")
@@ -73,7 +78,21 @@ class Image(object):
         self.hint = pygame.image.load("newimages/hint.png")
         self.restart = pygame.image.load("newimages/restart.png")
         self.home = pygame.image.load("newimages/home.png")
+        self.home1 = pygame.image.load("newimages/home1.png")
         self.victory = pygame.image.load("newimages/victory.png")
+        self.you_font = pygame.image.load("newimages/you.png")
+        self.vs = pygame.image.load("newimages/VS.png")
+        self.level = pygame.image.load("newimages/level.png")
+        self.easy = pygame.image.load("newimages/easy.png")
+        self.easy_small = pygame.image.load("newimages/easy_small.png")
+        self.medium = pygame.image.load("newimages/medium.png")
+        self.medium_small = pygame.image.load("newimages/medium_small.png")
+        self.hard = pygame.image.load("newimages/hard.png")
+        self.hard_small = pygame.image.load("newimages/hard_small.png")
+        self.arrow_left = pygame.image.load("newimages/arrow_left.png")
+        self.arrow_right = pygame.image.load("newimages/arrow_right.png")
+        self.rulepage = pygame.image.load("newimages/rulepage.png")
+        self.border = pygame.image.load("newimages/border.png")
 
 
 class Sound(object):
