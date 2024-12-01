@@ -162,9 +162,16 @@ class NottyGame:
                         self.draw_times += 1
                         if self.draw_times <= self.max_draw_times_per_turn:
                             current_player = self.players[action_user_id]
-                            if not current_player.draw_cards(self.deck, user_info):
-                                action_success = False
-                                error_info = "the maximum hand size is 20"
+                            # add easy level player will get the card which is the player need
+                            if self.game_ai_level == self.ComputerLevel.EASY:
+                                needed_cards = current_player.find_valid_group_to_draw(self.deck, user_info)
+                                if not current_player.draw_cards(self.deck, user_info, needed_cards):
+                                    action_success = False
+                                    error_info = "the maximum hand size is 20"
+                            else:
+                                if not current_player.draw_cards(self.deck, user_info):
+                                    action_success = False
+                                    error_info = "the maximum hand size is 20"
                         else:
                             action_success = False
                             error_info = "the times of draw are over 3"
@@ -175,12 +182,19 @@ class NottyGame:
                     print(self.steal_times)
                     print(type(user_info))
                     if self.steal_times <= self.max_steal_times_per_turn and \
-                            type(user_info) == int:
+                        type(user_info) == int:
                         current_player = self.players[action_user_id]
                         stealed_player = self.players[user_info]
-                        if not current_player.take_random_card(stealed_player):
-                            action_success = False
-                            error_info = "the maximum hand size is 20"
+                        # add easy level player will steal the card which is the player need
+                        if self.game_ai_level == self.ComputerLevel.EASY:
+                                needed_cards = current_player.find_valid_group_to_steal(stealed_player.hand)
+                                if not current_player.take_random_card(stealed_player, needed_cards):
+                                    action_success = False
+                                    error_info = "the maximum hand size is 20"
+                        else:
+                            if not current_player.take_random_card(stealed_player):
+                                action_success = False
+                                error_info = "the maximum hand size is 20"
                     else:
                         action_success = False
                         error_info = "only can steal one time per turn or the type is error"
