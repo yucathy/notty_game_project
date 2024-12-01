@@ -397,11 +397,13 @@ class NottyGame:
                 self.ai_actions_pool.remove(best_action)
             except ValueError:
                 print("DISCARD not found in ai_actions_pool")
-            
+
             if best_action == self.GameActions.DRAW:
-                self.send_action(best_action, current_ai_id, [draw_card_number, 0])
+                draw_code = random.choice([None, 0])
+                self.send_action(best_action, current_ai_id, [draw_card_number, draw_code])
             elif best_action == self.GameActions.STEAL:
-                self.send_action(best_action, current_ai_id, [steal_target, 1])
+                steal_code = random.choice([None, 1])
+                self.send_action(best_action, current_ai_id, [steal_target, steal_code])
             elif best_action == self.GameActions.SKIP:
                 self.send_action(best_action, current_ai_id)
 
@@ -445,9 +447,11 @@ class NottyGame:
             self.ai_actions_pool.remove(best_action)
 
             if best_action == self.GameActions.DRAW:
-                self.send_action(best_action, current_ai_id, [draw_card_number, 2])
+                draw_code = random.choice([None, 2])
+                self.send_action(best_action, current_ai_id, [draw_card_number, draw_code])
             elif best_action == self.GameActions.STEAL:
-                self.send_action(best_action, current_ai_id, [steal_target, 3])
+                steal_code = random.choice([None, 3])
+                self.send_action(best_action, current_ai_id, [steal_target, steal_code])
             elif best_action == self.GameActions.SKIP:
                 self.send_action(best_action, current_ai_id)
 
