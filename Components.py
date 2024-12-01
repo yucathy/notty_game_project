@@ -24,6 +24,7 @@ class BasicComponent(object):
         self.currentRound = 1   # current round number
         self.isAI = False
         self.hasWin = False
+        self.winMusic = True
         self.init_time = 0
         self.showDrawCard_time = 0
         self.showStealCard_time = 0
@@ -79,6 +80,8 @@ class Image(object):
         self.home = pygame.image.load("newimages/home.png")
         self.home1 = pygame.image.load("newimages/home1.png")
         self.victory = pygame.image.load("newimages/victory.png")
+        self.you_font = pygame.image.load("newimages/you.png")
+        self.vs = pygame.image.load("newimages/VS.png")
         self.level = pygame.image.load("newimages/level.png")
         self.easy = pygame.image.load("newimages/easy.png")
         self.easy_small = pygame.image.load("newimages/easy_small.png")

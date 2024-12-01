@@ -19,6 +19,7 @@ def reset(basic):
     basic.currentRound = 1  # current round number
     basic.isAI = False
     basic.hasWin = False
+    basic.winMusic = True
     basic.init_time = 0
     basic.showDrawCard_time = 0
     basic.showStealCard_time = 0

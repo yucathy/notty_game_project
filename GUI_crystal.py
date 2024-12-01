@@ -46,7 +46,8 @@ class GUI:
         unmusicButt = ButtonImage(920, 12, unmusicImg)
 
         # computer player name
-        # fontSelect = createSysFont("Arial", 24, "You VS", (0, 0, 0), (420, 350))
+        playTitle = img.you_font
+        playTitle1 = img.vs
         playName1 = img.woman_color
         playName1_black = img.woman_black
         playName1_rect = playName1.get_rect()
@@ -57,16 +58,15 @@ class GUI:
         playName2_rect.topleft = (700, 330)
 
         # difficulty
-        # fontLevel = createSysFont("Arial", 24, "Difficulty: ", (0, 0, 0), (420, 450))
         levelTitle = img.level
-        levelObj = {0: [img.easy,(635,470)], 1: [img.medium,(617,470)], 2: [img.hard,(635,470)]}
+        levelObj = {0: [img.easy,(645,470)], 1: [img.medium,(627,470)], 2: [img.hard,(645,470)]}
         levelObj_small = {0: [img.easy_small, (850, 15)], 1: [img.medium_small, (820, 15)], 2: [img.hard_small, (850, 15)]}
         arrowLeft = img.arrow_left
         arrowLeft_rect = arrowLeft.get_rect()
-        arrowLeft_rect.topleft = (565, 470)
+        arrowLeft_rect.topleft = (575, 470)
         arrowRight = img.arrow_right
         arrowRight_rect = arrowRight.get_rect()
-        arrowRight_rect.topleft = (760, 470)
+        arrowRight_rect.topleft = (770, 470)
 
         # deal card button
         startImg = img.start.convert_alpha()
@@ -129,6 +129,8 @@ class GUI:
                 checkButtClickable(checkButtons,allButtons,"home")
                 # screen.blits((fontSelect,fontName1,fontName2,fontLevel,fontLevelArr[basic.currentDifficulty],fontLeft,fontRight))
                 # player
+                screen.blit(playTitle, (420, 355))
+                screen.blit(playTitle1, (510, 355))
                 if "Grace" in basic.vs_players:
                     screen.blit(playName1, playName1_rect)
                 else:
@@ -138,11 +140,10 @@ class GUI:
                 else:
                     screen.blit(playName2_black, playName2_rect)
                 # difficulty
-                screen.blit(levelTitle,(420,470))
+                screen.blit(levelTitle,(425,470))
                 screen.blit(levelObj[basic.currentDifficulty][0], levelObj[basic.currentDifficulty][1])
                 screen.blit(arrowLeft,arrowLeft_rect)
                 screen.blit(arrowRight, arrowRight_rect)
-
 
             elif basic.play_page == "INFO":
                 screen.blit(img.rulepage, (0, 0))
@@ -201,6 +202,10 @@ class GUI:
                     basic.actionType = aType.SHUFFLE
 
                 # deck init
+                if len(self.game_status) > 0:
+                    fontCardNum = createSysFont("Arial", 20, f"Remaining cards: {len(self.game_status['deck'])}",
+                                           (0, 0, 0), (300, 240), True)
+                    screen.blit(fontCardNum[0],fontCardNum[1])
                 totalWidth = getCardListWidth(12)
                 for i in range(12):
                     screen.blit(img.cardback, (WINDOW_WIDTH/2-totalWidth/2 + 20 * i, 270))
@@ -372,7 +377,8 @@ class GUI:
                     self.nottygame.ai_take_action(basic.currentPlayer)
 
                 # winner congratulations
-                if len(self.game_status) > 0 and self.game_status['winner'] is not None:
+                if (not basic.hasWin) and (len(self.game_status) > 0) and (self.game_status['winner'] is not None):
+                    print("self.game_status---win---", self.game_status)
                     basic.actionType = aType.SHUFFLE
                     checkButtClickable(checkButtons, allButtons, "win")
                     screen.blit(img.victory, (WINDOW_WIDTH / 2 - img.victory.get_width() / 2,
@@ -383,12 +389,11 @@ class GUI:
                     screen.blits((fontCongratulation, fontWinner))
                     restartButt.draw(screen)
                     homeButt.draw(screen)
-                    if soundOn and (not basic.hasWin):
+                    if soundOn and basic.winMusic:
                         pygame.mixer.music.stop()
-                        pygame.mixer.music.unload()
                         sound.winner.set_volume(0.3)
                         sound.winner.play()
-                        basic.hasWin = True
+                        basic.winMusic = False
 
 
             for event in pygame.event.get():
@@ -550,13 +555,17 @@ class GUI:
                             if soundOn:
                                 sound.click.play()
                             reset(basic)
+                            basic.hasWin = True
                             self.nottygame.end_game()
                             self.nottygame.start_game()
+                            pygame.mixer.music.play(-1)
                         if homeButt.rect.collidepoint(event.pos) and homeButt.clickable:
                             if soundOn:
                                 sound.click.play()
                             reset(basic)
+                            basic.hasWin = True
                             self.nottygame.end_game()
+                            pygame.mixer.music.play(-1)
                             basic.play_page = "HOME"
 
 
