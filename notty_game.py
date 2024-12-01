@@ -95,7 +95,7 @@ class NottyGame:
     def create_card(self, colour: str, number: int) -> Card:
         return Card(colour, number)
 
-    def send_action(self, action: GameActions, action_user_id: int = None, action_info=None):
+    def send_action(self, action: GameActions, action_user_id: int = None, action_info = None):
         self.action_queue.put([action, action_user_id, action_info])
 
     def start_game(self):
@@ -109,17 +109,12 @@ class NottyGame:
             self.game_thread.join()
         self.__initialize_state()
 
-    def __update_status(self, user_action, action_success, error_info, active_status, next_player):
+    def __update_status(self, user_action, action_success, error_info, ai_thoughts, active_status, next_player):
         self.game_status["deck"] = self.deck.cards
         self.game_status["type"] = user_action
         self.game_status["action_success"] = action_success
         self.game_status["turns_count"] = self.turn_count
         self.game_status["winner"] = self.winner
-
-        # end_time = time.time()
-        # print("end_time - self.start_time",end_time - self.start_time)
-        # if end_time - self.start_time > 10:
-        #     self.game_status["winner"] = "Grace"
 
         player_list = []
         for player, active in zip(self.players, active_status):
@@ -131,6 +126,8 @@ class NottyGame:
         self.game_status['next_player'] = next_player
         self.game_status['error_info'] = error_info
 
+        self.game_status['ai_thoughts'] = ai_thoughts
+
     def __process_turns(self):
         while self.running:
             try:
@@ -139,7 +136,12 @@ class NottyGame:
                 # print(user_action_with_info)
                 user_action = user_action_with_info[0]
                 action_user_id = user_action_with_info[1]
-                user_info = user_action_with_info[2]
+                print("user_action_with_info[2]:", user_action_with_info[2])
+                if type(user_action_with_info[2]) != list or type(user_action_with_info[2][0]) == Card:
+                    user_info = user_action_with_info[2]
+                    ai_thoughts = None
+                else:
+                    user_info, ai_thoughts = user_action_with_info[2]
 
                 action_success = True
                 active_status = [False for _ in range(len(self.players))]
@@ -163,7 +165,7 @@ class NottyGame:
                         if self.draw_times <= self.max_draw_times_per_turn:
                             current_player = self.players[action_user_id]
                             # add easy level player will get the card which is the player need
-                            if self.game_ai_level == self.ComputerLevel.EASY:
+                            if self.game_ai_level == self.ComputerLevel.EASY and action_user_id == self.user_id:
                                 needed_cards = current_player.find_valid_group_to_draw(self.deck, user_info)
                                 if not current_player.draw_cards(self.deck, user_info, needed_cards):
                                     action_success = False
@@ -179,14 +181,12 @@ class NottyGame:
 
                 elif user_action == self.GameActions.STEAL:
                     self.steal_times += 1
-                    print(self.steal_times)
-                    print(type(user_info))
                     if self.steal_times <= self.max_steal_times_per_turn and \
                         type(user_info) == int:
                         current_player = self.players[action_user_id]
                         stealed_player = self.players[user_info]
                         # add easy level player will steal the card which is the player need
-                        if self.game_ai_level == self.ComputerLevel.EASY:
+                        if self.game_ai_level == self.ComputerLevel.EASY and action_user_id == self.user_id:
                                 needed_cards = current_player.find_valid_group_to_steal(stealed_player.hand)
                                 if not current_player.take_random_card(stealed_player, needed_cards):
                                     action_success = False
@@ -234,7 +234,7 @@ class NottyGame:
                     self.ai_actions_pool = [action for action in self.GameActions \
                                             if action != self.GameActions.DEAL]
 
-                self.__update_status(user_action, action_success, error_info, active_status, next_player)
+                self.__update_status(user_action, action_success, error_info, ai_thoughts, active_status, next_player)
 
                 # self.callback(copy.deepcopy(self.game_status))
                 self.render_queue.put(copy.deepcopy(self.game_status))
@@ -401,9 +401,9 @@ class NottyGame:
                 print("DISCARD not found in ai_actions_pool")
             
             if best_action == self.GameActions.DRAW:
-                self.send_action(best_action, current_ai_id, draw_card_number)
+                self.send_action(best_action, current_ai_id, [draw_card_number, "Probability is King!!!"])
             elif best_action == self.GameActions.STEAL:
-                self.send_action(best_action, current_ai_id, steal_target)
+                self.send_action(best_action, current_ai_id, [steal_target, "You've got my card~"])
             elif best_action == self.GameActions.SKIP:
                 self.send_action(best_action, current_ai_id)
 
@@ -447,9 +447,9 @@ class NottyGame:
             self.ai_actions_pool.remove(best_action)
 
             if best_action == self.GameActions.DRAW:
-                self.send_action(best_action, current_ai_id, draw_card_number)
+                self.send_action(best_action, current_ai_id, [draw_card_number, "Math never lie!!!"])
             elif best_action == self.GameActions.STEAL:
-                self.send_action(best_action, current_ai_id, steal_target)
+                self.send_action(best_action, current_ai_id, [steal_target, "You're too close to victory!"])
             elif best_action == self.GameActions.SKIP:
                 self.send_action(best_action, current_ai_id)
 
