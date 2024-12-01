@@ -200,6 +200,10 @@ class NottyGame:
                         error_info = "only can steal one time per turn or the type is error"
                     active_status[action_user_id] = True
 
+                    for player in self.players:
+                        if player.has_empty_hand():
+                            self.winner = player.name
+
                 elif user_action == self.GameActions.DISCARD:
                     if type(user_info) == set:
                         user_info = list(user_info)
