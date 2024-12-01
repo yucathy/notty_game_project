@@ -43,7 +43,7 @@
 ## 安装与运行  
 
 ### 系统要求  
-- Python 3.7 或以上版本  
+- Python 3.9 或以上版本  
 - Pygame 库  
 
 ### 安装步骤  
@@ -75,6 +75,8 @@
     ├── testCaseDoc/           # 测试用例和问题记录
     ├── NottyGame Specification # 项目规格书
     └── README.md              # 项目说明文件
+
+---
 
 ## 团队协作与鸣谢  
 
