@@ -19,6 +19,8 @@ def reset(basic):
     basic.currentRound = 1  # current round number
     basic.isAI = False
     basic.hasWin = False
+    basic.winMusic = True
+    basic.showHomeHint = False
     basic.init_time = 0
     basic.showDrawCard_time = 0
     basic.showStealCard_time = 0
@@ -160,7 +162,7 @@ def renderMessage(screen,w,basic,type,turn=1,currentPlayer=0,cards=[],targetPlay
     font = pygame.font.SysFont('arial', 20)
     text_surface = font.render(text, True, (0, 0, 0))
     text_width = text_surface.get_width()
-    pos = (w/2-text_width/2, 30)
+    pos = (w/2-text_width/2, 35)
     screen.blit(text_surface, pos)
 
 def renderCurrentPlayerHint(screen,img,currentPlayer):
