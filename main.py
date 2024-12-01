@@ -3,6 +3,12 @@ from gui import NottyGUI
 from GUI_crystal import GUI
 
 def main():
+    # # initial App
+    # nottygame = NottyGame()
+    # # initial NottyGUI
+    # gui = NottyGUI(nottygame)
+    # # run the app
+    # gui.run()
 
     nottygame = NottyGame()
     gui = GUI(nottygame)

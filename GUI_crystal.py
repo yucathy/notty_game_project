@@ -22,6 +22,7 @@ class GUI:
 
         active = True
         musicOn = True
+        soundOn = True
         pygame.mixer.music.load(sound.bgmusic)
         pygame.mixer.music.play(-1)             # continuous music
         pygame.mixer.music.set_volume(0.5)      # volume
@@ -35,12 +36,15 @@ class GUI:
         # back button
         backImg = img.back.convert_alpha()
         backButt = ButtonImage(10, 10, backImg)
-
-        # music button
+        # music and sound button
         muteImg = img.mute.convert_alpha()
         muteButt = ButtonImage(960, 10, muteImg)
         unmuteImg = img.unmute.convert_alpha()
         unmuteButt = ButtonImage(960, 10, unmuteImg)
+        musicImg = img.music.convert_alpha()
+        musicButt = ButtonImage(920, 12, musicImg)
+        unmusicImg = img.nomusic.convert_alpha()
+        unmusicButt = ButtonImage(920, 12, unmusicImg)
 
         # player name and difficulty
         fontSelect = createSysFont("Arial", 24, "You VS", (0, 0, 0), (420, 350))
@@ -55,42 +59,42 @@ class GUI:
 
         # deal card button
         startImg = img.start.convert_alpha()
-        startButt = ButtonImage(450, 20, startImg)
+        startButt = ButtonImage(437, 30, startImg)
         # draw button
-        drawImg = img.draw.convert_alpha()
-        drawButt = ButtonImage(460, 300, drawImg)
+        drawImg = img.draw_yellow.convert_alpha()
+        drawButt = ButtonImage(450, 305, drawImg)
         completeImg = img.complete.convert_alpha()
-        completeButt = ButtonImage(520, 300, completeImg)
+        completeButt = ButtonImage(510, 305, completeImg)
         # steal button
-        stealImg = img.steal.convert_alpha()
+        stealImg = img.draw.convert_alpha()
         stealButt1 = ButtonImage(60, WINDOW_HEIGHT/2-stealImg.get_height()/2, stealImg)    # left player
-        stealButt2 = ButtonImage(900, WINDOW_HEIGHT/2-stealImg.get_height()/2, stealImg)    # right player
+        stealButt2 = ButtonImage(890, WINDOW_HEIGHT/2-stealImg.get_height()/2, stealImg)    # right player
         stealButtArr = [stealButt1,stealButt2]
         # discard button
         discardImg = img.discard.convert_alpha()
-        discardButt = ButtonImage(900, 650, discardImg)
+        discardButt = ButtonImage(940, 640, discardImg)
         # skip button
         skipImg = img.skip.convert_alpha()
-        skipButt = ButtonImage(910, 640, skipImg)
+        skipButt = ButtonImage(940, 640, skipImg)
         # play for me button
-        playForMeImg = img.back.convert_alpha()
+        playForMeImg = img.playforme.convert_alpha()
         playForMeButt = ButtonImage(940, 580, playForMeImg)
         # try again button
-        tryAgainImg = img.tryagain.convert_alpha()
-        tryAgainButt = ButtonImage(390, 470, tryAgainImg)
+        restartImg = img.restart.convert_alpha()
+        restartButt = ButtonImage(390, 470, restartImg)
         # quit button
-        quitImg = img.tryagain.convert_alpha()
+        quitImg = img.home.convert_alpha()
         quitButt = ButtonImage(510, 470, quitImg)
 
         checkButtons = {
-            "home": [playButt, ruleButt, muteButt, unmuteButt],
-            "info": [backButt, muteButt, unmuteButt],
-            "start": [startButt, backButt, muteButt, unmuteButt],
-            "complete_draw": [skipButt, backButt, muteButt, unmuteButt],
-            "select_discard": [discardButt, backButt, muteButt, unmuteButt],
-            "win": [tryAgainButt, quitButt, backButt, muteButt, unmuteButt]
+            "home": [playButt, ruleButt, muteButt, unmuteButt, musicButt, unmusicButt],
+            "info": [backButt],
+            "start": [startButt, backButt, muteButt, unmuteButt, musicButt, unmusicButt],
+            "complete_draw": [skipButt, backButt, muteButt, unmuteButt, musicButt, unmusicButt],
+            "select_discard": [discardButt, backButt, muteButt, unmuteButt, musicButt, unmusicButt],
+            "win": [restartButt, quitButt, backButt]
         }
-        allButtons = {playButt, ruleButt, backButt, muteButt, unmuteButt, startButt, drawButt, completeButt, stealButt1, stealButt2, discardButt, skipButt, playForMeButt, tryAgainButt, quitButt}
+        allButtons = {playButt, ruleButt, backButt, muteButt, unmuteButt, musicButt, unmusicButt, startButt, drawButt, completeButt, stealButt1, stealButt2, discardButt, skipButt, playForMeButt, restartButt, quitButt}
 
 
         while active:
@@ -115,25 +119,25 @@ class GUI:
 
             elif basic.play_page == "INFO":
                 backButt.draw(screen)
-                if musicOn:
-                    muteButt.draw(screen)
-                else:
-                    unmuteButt.draw(screen)
                 checkButtClickable(checkButtons,allButtons,"info")
 
             elif basic.play_page == "GAME":
                 screen.blit(img.bgGame, (0, 0))
                 backButt.draw(screen)
-                if musicOn:
+                if soundOn:
                     muteButt.draw(screen)
                 else:
                     unmuteButt.draw(screen)
+                if musicOn:
+                    musicButt.draw(screen)
+                else:
+                    unmusicButt.draw(screen)
                 if startButt.clickable:
                     startButt.draw(screen)
 
                 # name and profile picture
-                screen.blit(img.you, (180, 590))
-                player0 = createSysFont("Arial", 20, "You", (0, 0, 0), (192, 565))
+                screen.blit(img.you, (180, 610))
+                player0 = createSysFont("Arial", 20, "You", (0, 0, 0), (192, 585))
                 if len(basic.vs_players) == 2:
                     if basic.vs_players[1] == "Grace":
                         screen.blit(img.woman, (50, 75))
@@ -162,7 +166,7 @@ class GUI:
 
 
                 if basic.actionType == aType.START:
-                    if musicOn:
+                    if soundOn:
                         sound.shuffled.play()
                     checkButtClickable(checkButtons,allButtons,"start")
                     basic.actionType = aType.SHUFFLE
@@ -340,16 +344,17 @@ class GUI:
 
                 # winner congratulations
                 if len(self.game_status) > 0 and self.game_status['winner'] is not None:
+                    basic.actionType = aType.SHUFFLE
                     checkButtClickable(checkButtons, allButtons, "win")
                     screen.blit(img.victory, (WINDOW_WIDTH / 2 - img.victory.get_width() / 2,
-                                              WINDOW_HEIGHT / 2 - img.victory.get_height() / 2 - 15))
+                                              WINDOW_HEIGHT / 2 - img.victory.get_height() / 2 - 10))
                     fontCongratulation = createSysFont("Arial", 40, "Congratulations!", (0, 0, 0), (400, 345), True)
                     fontWinner = createSysFont("Arial", 30, f"{self.game_status['winner']} win the game!",
                                                (0, 0, 0), (350, 410), True)
                     screen.blits((fontCongratulation, fontWinner))
-                    tryAgainButt.draw(screen)
+                    restartButt.draw(screen)
                     quitButt.draw(screen)
-                    if musicOn and (not basic.hasWin):
+                    if soundOn and (not basic.hasWin):
                         pygame.mixer.music.stop()
                         pygame.mixer.music.unload()
                         sound.winner.set_volume(0.3)
@@ -365,7 +370,7 @@ class GUI:
                     # mousePos = pygame.mouse.get_pos()
                     if event.button == 1:    # mouse left button
                         if playButt.rect.collidepoint(event.pos) and playButt.clickable:
-                            if musicOn:
+                            if soundOn:
                                 sound.click.play()
                             if len(basic.vs_players) >= 2:
                                 basic.play_page = "GAME"
@@ -378,12 +383,12 @@ class GUI:
                                 self.nottygame.setup(len(basic.vs_players),basic.vs_players,aiLevel)
                                 self.nottygame.start_game()
                         if ruleButt.rect.collidepoint(event.pos) and ruleButt.clickable:
-                            if musicOn:
+                            if soundOn:
                                 sound.click.play()
                                 basic.play_page = "INFO"
                         if backButt.rect.collidepoint(event.pos) and backButt.clickable:
                             if basic.play_page == "GAME" or basic.play_page == "INFO":
-                                if musicOn:
+                                if soundOn:
                                     sound.click.play()
                                 if basic.play_page == "GAME":
                                     reset(basic)
@@ -391,8 +396,16 @@ class GUI:
                                 basic.play_page = "HOME"
                         if ((muteButt.rect.collidepoint(event.pos) and muteButt.clickable)
                                 or (unmuteButt.rect.collidepoint(event.pos)) and unmuteButt.clickable):
-                            if musicOn:
+                            if soundOn:
                                 sound.click.play()
+                                soundOn = False
+                            else:
+                                soundOn = True
+                        if ((musicButt.rect.collidepoint(event.pos) and musicButt.clickable)
+                                or (unmusicButt.rect.collidepoint(event.pos)) and unmusicButt.clickable):
+                            if soundOn:
+                                sound.click.play()
+                            if musicOn:
                                 pygame.mixer.music.pause()
                                 musicOn = False
                             else:
@@ -400,7 +413,7 @@ class GUI:
                                 musicOn = True
                         # select VS player
                         if fontName1[1].collidepoint(event.pos):
-                            if musicOn:
+                            if soundOn:
                                 sound.click.play()
                             if "Grace" in basic.vs_players:
                                 basic.vs_players.remove("Grace")
@@ -408,7 +421,7 @@ class GUI:
                                 basic.vs_players.append("Grace")
                             print(basic.vs_players)
                         if fontName2[1].collidepoint(event.pos):
-                            if musicOn:
+                            if soundOn:
                                 sound.click.play()
                             if "John" in basic.vs_players:
                                 basic.vs_players.remove("John")
@@ -417,16 +430,16 @@ class GUI:
                             print(basic.vs_players)
                         # toggle difficulty
                         if fontLeft[1].collidepoint(event.pos):
-                            if musicOn:
+                            if soundOn:
                                 sound.click.play()
                             toggleDifficulty(basic,basic.currentDifficulty,"left")
                         if fontRight[1].collidepoint(event.pos):
-                            if musicOn:
+                            if soundOn:
                                 sound.click.play()
                             toggleDifficulty(basic,basic.currentDifficulty,"right")
                         # deal cards
                         if startButt.rect.collidepoint(event.pos) and startButt.clickable:
-                            if musicOn:
+                            if soundOn:
                                 sound.click.play()
                             self.nottygame.send_action(self.nottygame.GameActions.DEAL)
                             startButt.clickable = False
@@ -435,7 +448,7 @@ class GUI:
                         if drawButt.rect.collidepoint(event.pos) and drawButt.clickable:
                             if len(basic.allHandCard[0]["surfaces"]) + basic.drawnDeckNum < 20:
                                 if basic.drawnDeckNum < 3:
-                                    if musicOn:
+                                    if soundOn:
                                         sound.click.play()
                                     basic.drawnDeckNum += 1
                                     basic.actionType = aType.DRAW
@@ -447,7 +460,7 @@ class GUI:
                         # complete draw action
                         if completeButt.rect.collidepoint(event.pos) and completeButt.clickable:
                             if basic.drawnDeckNum > 0:
-                                if musicOn:
+                                if soundOn:
                                     sound.click.play()
                                 self.nottygame.send_action(self.nottygame.GameActions.DRAW, basic.currentPlayer, basic.drawnDeckNum)
                                 checkButtClickable(checkButtons,allButtons,"complete_draw")
@@ -455,7 +468,7 @@ class GUI:
                         # select player and draw from player(steal)
                         for i in range(len(stealButtArr)):
                             if stealButtArr[i].rect.collidepoint(event.pos) and stealButtArr[i].clickable:
-                                if musicOn:
+                                if soundOn:
                                     sound.click.play()
                                 basic.selectPlayer = i+1
                                 drawButt.clickable = discardButt.clickable = skipButt.clickable = playForMeButt.clickable = False
@@ -470,27 +483,28 @@ class GUI:
                                         stealButtArr[0].clickable = False
                                     basic.actionType = aType.SELECT_PLAYER
                         # my card click
-                        myCardsLength = len(basic.allHandCard[0]["surfaces"])
-                        for i in range(myCardsLength):
-                            item_surface = basic.allHandCard[0]["surfaces"][i]
-                            item_card = basic.allHandCard[0]["cards"][i]
-                            itemWidth = 85 if i == myCardsLength-1 else 20
-                            itemRect = item_surface[0].get_rect(topleft=item_surface[1], width=itemWidth)
-                            if itemRect.collidepoint(event.pos):
-                                if basic.actionType == aType.SELECT_ACTION or basic.actionType == aType.SELECT_DISCARD:
-                                    basic.drawnDiscard_surface.add(item_surface)
-                                    basic.drawnDiscard_card.add(item_card)
-                                    checkButtClickable(checkButtons,allButtons,"select_discard")
-                                    basic.actionType = aType.SELECT_DISCARD
+                        if not basic.hasWin:
+                            myCardsLength = len(basic.allHandCard[0]["surfaces"])
+                            for i in range(myCardsLength):
+                                item_surface = basic.allHandCard[0]["surfaces"][i]
+                                item_card = basic.allHandCard[0]["cards"][i]
+                                itemWidth = 85 if i == myCardsLength-1 else 20
+                                itemRect = item_surface[0].get_rect(topleft=item_surface[1], width=itemWidth)
+                                if itemRect.collidepoint(event.pos):
+                                    if basic.actionType == aType.SELECT_ACTION or basic.actionType == aType.SELECT_DISCARD:
+                                        basic.drawnDiscard_surface.add(item_surface)
+                                        basic.drawnDiscard_card.add(item_card)
+                                        checkButtClickable(checkButtons,allButtons,"select_discard")
+                                        basic.actionType = aType.SELECT_DISCARD
                         # discard my card
                         if discardButt.rect.collidepoint(event.pos) and discardButt.clickable:
-                            if musicOn:
+                            if soundOn:
                                 sound.click.play()
                             self.nottygame.send_action(self.nottygame.GameActions.DISCARD, basic.currentPlayer, basic.drawnDiscard_card)
                             basic.actionType = aType.DISCARD
                         # skip
                         if skipButt.rect.collidepoint(event.pos) and skipButt.clickable:
-                            if musicOn:
+                            if soundOn:
                                 sound.click.play()
                             self.nottygame.send_action(self.nottygame.GameActions.SKIP, basic.currentPlayer)
                             basic.drawnDeckNum = 0
@@ -498,18 +512,18 @@ class GUI:
                             basic.actionType = aType.SKIP
                         # play for me
                         if playForMeButt.rect.collidepoint(event.pos) and playForMeButt.clickable:
-                            if musicOn:
+                            if soundOn:
                                 sound.click.play()
                             basic.isAI = True
                             basic.actionType = aType.PLAY_FOR_ME
-                        if tryAgainButt.rect.collidepoint(event.pos) and tryAgainButt.clickable:
-                            if musicOn:
+                        if restartButt.rect.collidepoint(event.pos) and restartButt.clickable:
+                            if soundOn:
                                 sound.click.play()
                             reset(basic)
                             self.nottygame.end_game()
                             self.nottygame.start_game()
                         if quitButt.rect.collidepoint(event.pos) and quitButt.clickable:
-                            if musicOn:
+                            if soundOn:
                                 sound.click.play()
                             reset(basic)
                             self.nottygame.end_game()

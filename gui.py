@@ -1,6 +1,7 @@
 import queue
 import time
 
+
 class NottyGUI:
 
     def __init__(self, nottygame):
@@ -10,7 +11,7 @@ class NottyGUI:
 
     def run(self):
 
-        self.nottygame.setup(2, ['Amy', "Cathy"], self.nottygame.ComputerLevel.HARD) # name can be None.
+        self.nottygame.setup(2, ['Amy', "Cathy"], self.nottygame.ComputerLevel.HARD)  # name can be None.
 
         self.nottygame.start_game()
 
@@ -18,7 +19,7 @@ class NottyGUI:
         self.nottygame.send_action(self.nottygame.GameActions.DEAL)
 
         time.sleep(0.02)
-        self.game_status = self.nottygame.render_queue.get(timeout= 0.033)
+        self.game_status = self.nottygame.render_queue.get(timeout=0.033)
         print(self.game_status)
         print("-----------------------")
         for _ in range(2):
@@ -31,11 +32,10 @@ class NottyGUI:
                 print(self.game_status)
                 print("-----------------------")
 
-
             # discard card
             discarded_list = [self.game_status['players'][0]['handset'][0],
-                            self.game_status['players'][0]['handset'][1],
-                            self.game_status['players'][0]['handset'][2]]
+                              self.game_status['players'][0]['handset'][1],
+                              self.game_status['players'][0]['handset'][2]]
 
             self.nottygame.send_action(self.nottygame.GameActions.DISCARD, self.nottygame.user_id, discarded_list)
 
@@ -46,7 +46,7 @@ class NottyGUI:
             #                                self.nottygame.create_card("Green", 4)])
             time.sleep(0.02)
 
-            self.game_status = self.nottygame.render_queue.get(timeout= 0.033)
+            self.game_status = self.nottygame.render_queue.get(timeout=0.033)
             print(self.game_status)
             print("-----------------------")
 
@@ -55,7 +55,7 @@ class NottyGUI:
 
             time.sleep(0.02)
 
-            self.game_status = self.nottygame.render_queue.get(timeout= 0.033)
+            self.game_status = self.nottygame.render_queue.get(timeout=0.033)
             print(self.game_status)
 
             print("-----------------------")
@@ -65,7 +65,7 @@ class NottyGUI:
 
             time.sleep(1)
 
-            self.game_status = self.nottygame.render_queue.get(timeout= 0.033)
+            self.game_status = self.nottygame.render_queue.get(timeout=0.033)
             print(self.game_status)
             print("----ai start------")
 
@@ -76,7 +76,7 @@ class NottyGUI:
 
                     time.sleep(0.033)
                     try:
-                        self.game_status = self.nottygame.render_queue.get(timeout= 0.033)
+                        self.game_status = self.nottygame.render_queue.get(timeout=0.033)
                     except queue.Empty:
                         continue
                     print(self.game_status)
@@ -90,7 +90,7 @@ class NottyGUI:
             self.nottygame.ai_take_action(self.nottygame.user_id)
 
             try:
-                self.game_status = self.nottygame.render_queue.get(timeout= 0.033)
+                self.game_status = self.nottygame.render_queue.get(timeout=0.033)
             except queue.Empty:
                 continue
             print(self.game_status)
@@ -98,4 +98,3 @@ class NottyGUI:
                 break
 
         self.nottygame.end_game()
-
