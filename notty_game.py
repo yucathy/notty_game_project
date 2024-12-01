@@ -109,7 +109,7 @@ class NottyGame:
             self.game_thread.join()
         self.__initialize_state()
 
-    def __update_status(self, user_action, action_success, error_info, ai_thoughts, active_status, next_player):
+    def __update_status(self, user_action, action_success, error_info, ai_thoughts_id, active_status, next_player):
         self.game_status["deck"] = self.deck.cards
         self.game_status["type"] = user_action
         self.game_status["action_success"] = action_success
@@ -126,22 +126,20 @@ class NottyGame:
         self.game_status['next_player'] = next_player
         self.game_status['error_info'] = error_info
 
-        self.game_status['ai_thoughts'] = ai_thoughts
+        self.game_status['ai_thoughts_id'] = ai_thoughts_id
 
     def __process_turns(self):
         while self.running:
             try:
                 # get user action
                 user_action_with_info = self.action_queue.get(timeout=1)
-                # print(user_action_with_info)
+                ai_thoughts_id = None
                 user_action = user_action_with_info[0]
                 action_user_id = user_action_with_info[1]
-                print("user_action_with_info[2]:", user_action_with_info[2])
                 if type(user_action_with_info[2]) != list or type(user_action_with_info[2][0]) == Card:
                     user_info = user_action_with_info[2]
-                    ai_thoughts = None
                 else:
-                    user_info, ai_thoughts = user_action_with_info[2]
+                    user_info, ai_thoughts_id = user_action_with_info[2]
 
                 action_success = True
                 active_status = [False for _ in range(len(self.players))]
@@ -234,7 +232,7 @@ class NottyGame:
                     self.ai_actions_pool = [action for action in self.GameActions \
                                             if action != self.GameActions.DEAL]
 
-                self.__update_status(user_action, action_success, error_info, ai_thoughts, active_status, next_player)
+                self.__update_status(user_action, action_success, error_info, ai_thoughts_id, active_status, next_player)
 
                 # self.callback(copy.deepcopy(self.game_status))
                 self.render_queue.put(copy.deepcopy(self.game_status))
@@ -401,9 +399,9 @@ class NottyGame:
                 print("DISCARD not found in ai_actions_pool")
             
             if best_action == self.GameActions.DRAW:
-                self.send_action(best_action, current_ai_id, [draw_card_number, "Probability is King!!!"])
+                self.send_action(best_action, current_ai_id, [draw_card_number, 0])
             elif best_action == self.GameActions.STEAL:
-                self.send_action(best_action, current_ai_id, [steal_target, "You've got my card~"])
+                self.send_action(best_action, current_ai_id, [steal_target, 1])
             elif best_action == self.GameActions.SKIP:
                 self.send_action(best_action, current_ai_id)
 
@@ -447,9 +445,9 @@ class NottyGame:
             self.ai_actions_pool.remove(best_action)
 
             if best_action == self.GameActions.DRAW:
-                self.send_action(best_action, current_ai_id, [draw_card_number, "Math never lie!!!"])
+                self.send_action(best_action, current_ai_id, [draw_card_number, 2])
             elif best_action == self.GameActions.STEAL:
-                self.send_action(best_action, current_ai_id, [steal_target, "You're too close to victory!"])
+                self.send_action(best_action, current_ai_id, [steal_target, 3])
             elif best_action == self.GameActions.SKIP:
                 self.send_action(best_action, current_ai_id)
 
