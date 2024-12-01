@@ -25,6 +25,7 @@ class BasicComponent(object):
         self.isAI = False
         self.hasWin = False
         self.winMusic = True
+        self.showHomeHint = False
         self.init_time = 0
         self.showDrawCard_time = 0
         self.showStealCard_time = 0

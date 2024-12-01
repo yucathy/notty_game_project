@@ -20,6 +20,7 @@ def reset(basic):
     basic.isAI = False
     basic.hasWin = False
     basic.winMusic = True
+    basic.showHomeHint = False
     basic.init_time = 0
     basic.showDrawCard_time = 0
     basic.showStealCard_time = 0

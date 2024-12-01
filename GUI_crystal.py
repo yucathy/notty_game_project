@@ -128,7 +128,9 @@ class GUI:
                 playButt.draw(screen)
                 ruleButt.draw(screen)
                 checkButtClickable(checkButtons,allButtons,"home")
-                # screen.blits((fontSelect,fontName1,fontName2,fontLevel,fontLevelArr[basic.currentDifficulty],fontLeft,fontRight))
+                if basic.showHomeHint:
+                    homeHint = createSysFont("Arial", 20, "Please select at least one player", (0, 0, 0), (420, 165))
+                    screen.blit(homeHint[0], homeHint[1])
                 # player
                 screen.blit(playTitle, (420, 355))
                 screen.blit(playTitle1, (510, 355))
@@ -153,7 +155,7 @@ class GUI:
 
             elif basic.play_page == "GAME":
                 screen.blit(img.bgGame, (0, 0))
-                screen.blit(levelObj_small[basic.currentDifficulty], (60,17))
+                screen.blit(levelObj_small[basic.currentDifficulty], (WINDOW_WIDTH/2-levelObj_small[basic.currentDifficulty].get_width()/2, 210))
                 backButt.draw(screen)
                 if soundOn:
                     muteButt.draw(screen)
@@ -412,6 +414,7 @@ class GUI:
                             if soundOn:
                                 sound.click.play()
                             if len(basic.vs_players) >= 2:
+                                basic.showHomeHint = False
                                 basic.play_page = "GAME"
                                 if basic.currentDifficulty == 0:
                                     aiLevel = self.nottygame.ComputerLevel.EASY
@@ -421,6 +424,8 @@ class GUI:
                                     aiLevel = self.nottygame.ComputerLevel.HARD
                                 self.nottygame.setup(len(basic.vs_players),basic.vs_players,aiLevel)
                                 self.nottygame.start_game()
+                            else:
+                                basic.showHomeHint = True
                         if ruleButt.rect.collidepoint(event.pos) and ruleButt.clickable:
                             if soundOn:
                                 sound.click.play()
