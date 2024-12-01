@@ -191,8 +191,8 @@ class GUI:
                     screen.blits((player0,player1,player2))
 
                 # current player hint
-                # if basic.actionType != aType.START or basic.actionType != aType.SHUFFLE:
-                #     renderCurrentPlayerHint(screen,img,basic.currentPlayer)
+                if basic.actionType != aType.START or basic.actionType != aType.SHUFFLE:
+                    renderCurrentPlayerHint(screen,img,basic.currentPlayer)
 
 
                 if basic.actionType == aType.START:

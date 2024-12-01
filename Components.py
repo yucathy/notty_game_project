@@ -92,6 +92,7 @@ class Image(object):
         self.arrow_left = pygame.image.load("newimages/arrow_left.png")
         self.arrow_right = pygame.image.load("newimages/arrow_right.png")
         self.rulepage = pygame.image.load("newimages/rulepage.png")
+        self.border = pygame.image.load("newimages/border.png")
 
 
 class Sound(object):
