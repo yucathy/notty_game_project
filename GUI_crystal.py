@@ -60,7 +60,7 @@ class GUI:
         # difficulty
         levelTitle = img.level
         levelObj = {0: [img.easy,(645,470)], 1: [img.medium,(627,470)], 2: [img.hard,(645,470)]}
-        levelObj_small = {0: [img.easy_small, (850, 15)], 1: [img.medium_small, (820, 15)], 2: [img.hard_small, (850, 15)]}
+        levelObj_small = {0: img.easy_small, 1: img.medium_small, 2: img.hard_small}
         arrowLeft = img.arrow_left
         arrowLeft_rect = arrowLeft.get_rect()
         arrowLeft_rect.topleft = (575, 470)
@@ -152,7 +152,7 @@ class GUI:
 
             elif basic.play_page == "GAME":
                 screen.blit(img.bgGame, (0, 0))
-                screen.blit(levelObj_small[basic.currentDifficulty][0], levelObj_small[basic.currentDifficulty][1])
+                screen.blit(levelObj_small[basic.currentDifficulty], (60,17))
                 backButt.draw(screen)
                 if soundOn:
                     muteButt.draw(screen)
