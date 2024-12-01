@@ -49,5 +49,62 @@
 ### 安装步骤  
 1. 克隆代码库：  
    ```bash
-   git clone <repository_url>
+   git clone https://github.com/yucathy/notty_game_project.git
    cd notty_game_project
+2. 安装依赖：  
+    ```bash
+    pip install -r requirements.txt
+3. 运行游戏： 
+    ```bash
+   python main.py
+
+### 项目文件结构
+    plaintext
+    notty_game_project/
+    │
+    ├── Card.py                # 定义 Card 卡牌对象类
+    ├── deck.py                # 定义 Deck 牌池类
+    ├── Components.py          # 
+    ├── Functions.py           # 
+    ├── players.py             # 定义 Actions, ComputerPlayer1, ComputerPlayer2 类
+    ├── notty_game.py          # 主游戏逻辑
+    ├── gui.py                 # GUI 设计和事件管理
+    ├── GUI_crystal.py         #
+    ├── main.py                # 程序入口
+    ├── images/                # 游戏图片素材文件夹
+    ├── sounds/                # 游戏音乐/音效素材文件夹
+    ├── testCaseDoc/           # 测试用例和问题记录
+    ├── NottyGame Specification # 项目规格书
+    └── README.md              # 项目说明文件
+
+## 团队协作与鸣谢  
+
+### 团队成员  
+- **Mingxin Cao** - 协作与辅助支持  
+- **Xinyu Liu** - 代码及功能测试  
+- **Tzu Chun Yu** - 后端逻辑开发  
+- **Siwen Zhao** - UI与前端交互设计  
+- **Xiuyuan Tao** - UI与前端交互设计  
+
+### 项目时间线  
+| 日期          | 事件                                    |  
+|---------------|-----------------------------------------|  
+| 11/04-11/21   | 软件配置与功能开发                     |  
+| 11/22-11/24   | 问题修复与知识补充                     |  
+| 11/25         | 功能初对接与基本测试                   |  
+| 11/26-11/29   | 集中处理问题，完善功能                 |  
+| 11/30-12/02   | 功能验证与问题复查                     |  
+| 12/03-12/06   | 文档编写与项目提交                     |  
+
+### 特别鸣谢  
+感谢所有组员的努力以及开源项目 Pygame，为我们提供了强大的游戏开发支持。  
+
+---
+
+## 游戏预览  
+（待添加截图或动画。）  
+
+
+
+
+
