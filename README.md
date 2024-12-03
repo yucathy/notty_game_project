@@ -1,109 +1,114 @@
 # Notty - A Pygame-Based Card Game  
 
-## 游戏简介  
-**Notty** 是一个基于 Pygame 开发的纸牌小游戏，支持一名真人玩家和一至两名AI玩家对战。  
-游戏中，玩家通过从总牌堆中抽卡、其他玩家手中抽卡（下面称为偷卡）和丢牌等策略，争取尽早清空手牌以赢得比赛。  
+## Game Overview  
+**Notty** is a lightweight card game developed using Pygame, supporting one human player competing against one or two AI players.  
+In the game, players aim to empty their hands by drawing cards from the deck, stealing cards from other players, and discarding cards strategically to win the match.  
 
-### 游戏特色  
-- **自定义界面**：游戏界面由小组自主设计，精美且直观。  
-- **多难度 AI**：三档 AI 难度模式，挑战你的策略水平：  
-  - **简单模式**：真人玩家抽卡和偷卡时总能获得能够凑成有效组的卡牌。  
-  - **中等模式**：AI玩家根据概率分析选择最佳动作。  
-  - **困难模式**：AI玩家加入干扰对手的策略，进一步增加挑战性。  
-- **全局透明手牌**：所有玩家手牌始终面朝上，策略尽显。  
-- **随机性与重平衡**：每次丢牌后牌堆重新洗牌，增加不可预测性。  
-
----
-
-## 游戏规则  
-
-### 卡牌组成  
-- **颜色**：红色、蓝色、绿色和黄色。  
-- **数字**：1 至 10。  
-- 每种颜色和数字的组合有两张卡，共 80 张牌。  
-
-### 游戏开始  
-- 将牌堆洗牌，每位玩家发 5 张牌。  
-- 所有玩家的手牌始终明牌展示。  
-
-### 游戏流程  
-- 玩家轮流进行以下操作（每个动作每轮有特定次数限制）：  
-  1. **抽牌**：从牌堆中抽 1 至 3 张牌（仅一次）。  
-  2. **偷牌**：随机从另一位玩家手牌中抽取一张（仅一次）。  
-  3. **丢牌**：丢弃有效组合（不限次数）：  
-     - 同色序列：至少三张同色、连续数字的卡牌。  
-     - 同号组合：至少三张不同色、相同数字的卡牌（颜色不可重复）。  
-- **手牌限制**：最多 20 张，若超过则限制操作。  
-
-### 胜利条件  
-率先清空手牌的玩家获胜。  
+### Key Features  
+- **Custom UI**: A visually appealing and user-friendly interface designed by the team.  
+- **Multi-level AI**: Three difficulty levels for AI opponents to test your strategic thinking:  
+  - **Easy Mode**: Human players always draw or steal cards that can form valid sets.  
+  - **Medium Mode**: AI players choose the best actions based on probability analysis.  
+  - **Hard Mode**: AI players adopt disruptive strategies, increasing the challenge.  
+- **Global Transparency**: All players’ hands are visible throughout the game, emphasizing strategic planning.  
+- **Randomness and Rebalancing**: The deck is reshuffled after each discard, adding unpredictability.  
 
 ---
 
-## 安装与运行  
+## Game Rules  
 
-### 系统要求  
-- Python 3.9 或以上版本  
-- Pygame 库  
+### Card Composition  
+- **Colors**: Red, Blue, Green, and Yellow.  
+- **Numbers**: From 1 to 10.  
+- Each color-number combination has two cards, making a total of 80 cards.  
 
-### 安装步骤  
-1. 克隆代码库：  
+### Game Start  
+- Shuffle the deck and deal 5 cards to each player.  
+- All players’ hands are displayed face-up at all times.  
+
+### Gameplay  
+- Players take turns performing the following actions (each with specific limits per turn):  
+  1. **Draw Cards**: Draw 1 to 3 cards from the deck (once per turn).  
+  2. **Steal Cards**: Randomly steal one card from another player (once per turn).  
+  3. **Discard Cards**: Discard valid sets (no limit):  
+     - **Same-Color Sequences**: At least three consecutive numbers of the same color.  
+     - **Same-Number Sets**: At least three cards of the same number but different colors (no duplicates).  
+- **Hand Limit**: A maximum of 20 cards is allowed. If exceeded, player actions are restricted.  
+
+### Winning Condition  
+The first player to empty their hand wins.  
+
+---
+
+## Installation and Execution  
+
+### System Requirements  
+- Python 3.9 or higher  
+- Pygame library  
+
+### Installation Steps  
+1. Clone the repository:  
    ```bash
    git clone https://github.com/yucathy/notty_game_project.git
    cd notty_game_project
-2. 安装依赖：  
+
+2. Install dependencies:
     ```bash
     pip install -r requirements.txt
-3. 运行游戏： 
+3. Run the game:
     ```bash
    python main.py
 
 ### 项目文件结构
     notty_game_project/
     │
-    ├── card.py                # 定义 Card 卡牌对象类
-    ├── deck.py                # 定义 Deck 牌池类
-    ├── components.py          # 
-    ├── functions.py           # 
-    ├── players.py             # 定义 Actions, ComputerPlayer1, ComputerPlayer2 类
-    ├── notty_game.py          # 主游戏逻辑
-    ├── gui.py                 # GUI 设计和事件管理
-    ├── main.py                # 程序入口
-    ├── images/                # 游戏图片素材文件夹
-    ├── sounds/                # 游戏音乐/音效素材文件夹
-    ├── testCaseDoc/           # 测试用例和问题记录(待调整)
-    ├── NottyGame Specification # 项目规格书(待调整)
-    ├── requirements.txt       # 项目依赖
-    └── README.md              # 项目说明文件
+    ├── card.py                # Defines the Card class
+    ├── deck.py                # Defines the Deck class
+    ├── components.py          # Helper components
+    ├── functions.py           # Game-related utility functions
+    ├── players.py             # Defines Actions, ComputerPlayer1, and ComputerPlayer2 classes
+    ├── notty_game.py          # Main game logic
+    ├── gui.py                 # GUI design and event management
+    ├── main.py                # Entry point of the program
+    ├── images/                # Game image assets
+    ├── sounds/                # Game music/sound assets
+    ├── testCaseDoc/           # Test cases and issue documentation (pending updates)
+    ├── NottyGame Specification # Project specifications (pending updates)
+    ├── requirements.txt       # Project dependencies
+    └── README.md              # Project documentation
 
 ---
 
-## 团队协作与鸣谢  
+## Team Collaboration and Acknowledgments
 
-### 团队成员  
-- **Mingxin Cao** - 后端逻辑开发, 协作与辅助支持  
-- **Xinyu Liu** - 代码及功能测试  
-- **Tzu Chun Yu** - 后端逻辑开发  
-- **Siwen Zhao** - UI与前端交互设计  
-- **Xiuyuan Tao** - UI与前端交互设计  
+### Team Members  
+- **Mingxin Cao** - Backend logic development, coordination, and support
+- **Xinyu Liu** - Code and feature testing
+- **Tzu Chun Yu** - Backend logic development, Final code acceptance person
+- **Siwen Zhao** - frontend GUI development, UI and frontend interaction design
+- **Xiuyuan Tao** - UI and frontend interaction design
 
 ### 项目时间线  
-| 日期          | 事件                                    |  
+| Date          | Milestone                               |  
 |---------------|-----------------------------------------|  
-| 11/04-11/21   | 软件配置与功能开发                     |  
-| 11/22-11/24   | 问题修复与知识补充                     |  
-| 11/25         | 功能初对接与基本测试                   |  
-| 11/26-11/29   | 集中处理问题，完善功能                 |  
-| 11/30-12/02   | 功能验证与问题复查                     |  
-| 12/03-12/06   | 文档编写与项目提交                     |  
+| 11/04-11/21   | Software setup and feature development  |  
+| 11/22-11/24   | Issue fixing and knowledge enhancement  |  
+| 11/25         | Initial feature integration and testing |  
+| 11/26-11/29   | Issue resolution and feature refinement |  
+| 11/30-12/02   | Feature validation and final checks     |  
+| 12/03-12/06   | Documentation and project submission    |  
 
-### 特别鸣谢  
-感谢所有组员的努力以及开源项目 Pygame，为我们提供了强大的游戏开发支持。  
+### Special Thanks  
+A heartfelt thank you to all team members for their hard work and to the Pygame open-source project for providing a robust framework for game development.
 
 ---
 
-## 游戏预览  
-（待添加截图或动画。）  
+## Game Preview  
+![Gameplay Preview](images/READMEhomepage.png "Home Page")
+![Gameplay Preview](images/READMErules.png "Rules Page")
+![Gameplay Preview](images/READMEgame.png "Game Page")
+![Gameplay Preview](images/READMEvictory.png "Victory Page")
+
 
 
 
