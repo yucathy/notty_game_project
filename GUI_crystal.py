@@ -463,30 +463,34 @@ class GUI:
                                 musicOn = True
                         # select VS player
                         if playName1_rect.collidepoint(event.pos) or playName1_rect.collidepoint(event.pos):
-                            if soundOn:
-                                sound.click.play()
-                            if "Grace" in basic.vs_players:
-                                basic.vs_players.remove("Grace")
-                            else:
-                                basic.vs_players.append("Grace")
-                            # print(basic.vs_players)
+                            if basic.play_page == "HOME":
+                                if soundOn:
+                                    sound.click.play()
+                                if "Grace" in basic.vs_players:
+                                    basic.vs_players.remove("Grace")
+                                else:
+                                    basic.vs_players.append("Grace")
+                                # print(basic.vs_players)
                         if playName2_rect.collidepoint(event.pos) or playName2_rect.collidepoint(event.pos):
-                            if soundOn:
-                                sound.click.play()
-                            if "John" in basic.vs_players:
-                                basic.vs_players.remove("John")
-                            else:
-                                basic.vs_players.append("John")
-                            # print(basic.vs_players)
+                            if basic.play_page == "HOME":
+                                if soundOn:
+                                    sound.click.play()
+                                if "John" in basic.vs_players:
+                                    basic.vs_players.remove("John")
+                                else:
+                                    basic.vs_players.append("John")
+                                # print(basic.vs_players)
                         # toggle difficulty
                         if arrowLeft_rect.collidepoint(event.pos):
-                            if soundOn:
-                                sound.click.play()
-                            toggleDifficulty(basic,basic.currentDifficulty,"left")
+                            if basic.play_page == "HOME":
+                                if soundOn:
+                                    sound.click.play()
+                                toggleDifficulty(basic,basic.currentDifficulty,"left")
                         if arrowRight_rect.collidepoint(event.pos):
-                            if soundOn:
-                                sound.click.play()
-                            toggleDifficulty(basic,basic.currentDifficulty,"right")
+                            if basic.play_page == "HOME":
+                                if soundOn:
+                                    sound.click.play()
+                                toggleDifficulty(basic,basic.currentDifficulty,"right")
                         # deal cards
                         if startButt.rect.collidepoint(event.pos) and startButt.clickable:
                             if soundOn:
