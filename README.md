@@ -104,7 +104,7 @@ A heartfelt thank you to all team members for their hard work and to the Pygame 
 ---
 
 ## Game Preview  
-![Gameplay Preview](newimages/READMEhomepage.png "Home Page")
+![Gameplay Preview](newimages/READMEhomePage.png "Home Page")
 ![Gameplay Preview](newimages/READMErules.png "Rules Page")
 ![Gameplay Preview](newimages/READMEgame.png "Game Page")
 ![Gameplay Preview](newimages/READMEvictory.png "Victory Page")
