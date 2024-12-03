@@ -59,7 +59,7 @@ The first player to empty their hand wins.
     ```bash
    python main.py
 
-### 项目文件结构
+### Project Structure
     notty_game_project/
     │
     ├── card.py                # Defines the Card class
@@ -88,7 +88,7 @@ The first player to empty their hand wins.
 - **Siwen Zhao** - frontend GUI development, UI and frontend interaction design
 - **Xiuyuan Tao** - UI and frontend interaction design
 
-### 项目时间线  
+### Project Timeline  
 | Date          | Milestone                               |  
 |---------------|-----------------------------------------|  
 | 11/04-11/21   | Software setup and feature development  |  
