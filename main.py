@@ -1,6 +1,5 @@
 from notty_game import NottyGame
-from gui import NottyGUI
-from GUI_crystal import GUI
+from GUI import GUI
 
 def main():
     # # initial App

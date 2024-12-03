@@ -94,14 +94,6 @@ class Image(object):
         self.arrow_left = pygame.image.load("newimages/arrow_left.png")
         self.arrow_right = pygame.image.load("newimages/arrow_right.png")
         self.rulepage = pygame.image.load("newimages/rulepage.png")
-        # self.aiHint_1_0 = pygame.image.load("newimages/aiHint_1_0.png")
-        # self.aiHint_1_1 = pygame.image.load("newimages/aiHint_1_1.png")
-        # self.aiHint_1_2 = pygame.image.load("newimages/aiHint_1_2.png")
-        # self.aiHint_1_3 = pygame.image.load("newimages/aiHint_1_3.png")
-        # self.aiHint_2_0 = pygame.image.load("newimages/aiHint_2_0.png")
-        # self.aiHint_2_1 = pygame.image.load("newimages/aiHint_2_1.png")
-        # self.aiHint_2_2 = pygame.image.load("newimages/aiHint_2_2.png")
-        # self.aiHint_2_3 = pygame.image.load("newimages/aiHint_2_3.png")
 
 
 class Sound(object):

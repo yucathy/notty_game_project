@@ -78,8 +78,8 @@ class GUI:
         completeButt = ButtonImage(510, 305, completeImg)
         # steal button
         stealImg = img.draw.convert_alpha()
-        stealButt1 = ButtonImage(60, WINDOW_HEIGHT/2-stealImg.get_height()/2, stealImg)    # left player
-        stealButt2 = ButtonImage(890, WINDOW_HEIGHT/2-stealImg.get_height()/2, stealImg)    # right player
+        stealButt1 = ButtonImage(55, WINDOW_HEIGHT/2-stealImg.get_height()/2, stealImg)    # left player
+        stealButt2 = ButtonImage(895, WINDOW_HEIGHT/2-stealImg.get_height()/2, stealImg)    # right player
         stealButtArr = [stealButt1,stealButt2]
         # discard button
         discardImg = img.discard.convert_alpha()
@@ -119,7 +119,7 @@ class GUI:
             if not self.nottygame.render_queue.empty():
                 self.game_status = self.nottygame.render_queue.get(timeout = 0.033)
                 print("self.game_status---",self.game_status)
-                print("basic.hasWin---",basic.hasWin)
+                # print("basic.hasWin---",basic.hasWin)
                 if basic.isAI:
                     doAIAction(basic, aType, self.game_status['type'].value)
 
@@ -203,10 +203,10 @@ class GUI:
                     basic.actionType = aType.SHUFFLE
 
                 # deck init
-                if basic.hasWin:
-                    basic.totalCardNum = 80
-                else:
-                    if len(self.game_status) > 0:
+                if (not basic.hasWin) and len(self.game_status) > 0:
+                    if len(basic.allHandCard[0]["surfaces"]) == 0 and len(basic.allHandCard[1]["surfaces"]) == 0 and len(basic.allHandCard[2]["surfaces"]) == 0:
+                        basic.totalCardNum = 80
+                    else:
                         basic.totalCardNum = len(self.game_status['deck'])
                 fontCardNum = createSysFont("Arial", 20, f"Remaining cards: {basic.totalCardNum}",
                                             (0, 0, 0), (300, 240), True)
