@@ -136,10 +136,15 @@ class NottyGame:
                 ai_thoughts_id = None
                 user_action = user_action_with_info[0]
                 action_user_id = user_action_with_info[1]
-                if type(user_action_with_info[2]) != list or type(user_action_with_info[2][0]) == Card:
+                if type(user_action_with_info[2]) != list or not user_action_with_info[2]:
                     user_info = user_action_with_info[2]
                 else:
-                    user_info, ai_thoughts_id = user_action_with_info[2]
+                    print(user_action_with_info[2])
+                    print("^^^^^^^^^")
+                    if type(user_action_with_info[2][0]) != Card:
+                        user_info, ai_thoughts_id = user_action_with_info[2]
+                    else:
+                        user_info = user_action_with_info[2]
 
                 action_success = True
                 active_status = [False for _ in range(len(self.players))]
@@ -353,10 +358,11 @@ class NottyGame:
         return [draw_card_number, steal_target, action_scores]
 
     def __ai_take_easy_action(self, current_ai_id):
+        print(self.ai_actions_pool)
+        print("---------------->")
         random_action = random.choice(self.ai_actions_pool)
         if random_action != self.GameActions.DISCARD:
             self.ai_actions_pool.remove(random_action)
-        print(self.ai_actions_pool)
         print(f"Randomly selected action: {random_action}")
 
         if random_action == self.GameActions.DRAW:
