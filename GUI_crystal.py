@@ -89,7 +89,7 @@ class GUI:
         skipButt = ButtonImage(940, 640, skipImg)
         # play for me button
         playForMeImg = img.playforme.convert_alpha()
-        playForMeButt = ButtonImage(940, 580, playForMeImg)
+        playForMeButt = ButtonImage(880, 640, playForMeImg)
         # try again button
         restartImg = img.restart.convert_alpha()
         restartButt = ButtonImage(390, 470, restartImg)
@@ -119,7 +119,7 @@ class GUI:
             if not self.nottygame.render_queue.empty():
                 self.game_status = self.nottygame.render_queue.get(timeout = 0.033)
                 print("self.game_status---",self.game_status)
-                # print("basic.allHandCard----", basic.allHandCard)
+                print("basic.hasWin---",basic.hasWin)
                 if basic.isAI:
                     doAIAction(basic, aType, self.game_status['type'].value)
 
@@ -173,8 +173,8 @@ class GUI:
                 player0 = createSysFont("Arial", 20, "You", (0, 0, 0), (192, 585))
                 if len(basic.vs_players) == 2:
                     if basic.vs_players[1] == "Grace":
-                        screen.blit(img.woman, (50, 75))
-                        player1 = createSysFont("Arial", 20, "Grace", (0, 0, 0), (53, 50))
+                        screen.blit(img.woman, (47, 75))
+                        player1 = createSysFont("Arial", 20, "Grace", (0, 0, 0), (50, 50))
                         screen.blits((player0,player1))
                     else:
                         screen.blit(img.man, (50, 75))
@@ -192,11 +192,9 @@ class GUI:
                         player1 = createSysFont("Arial", 20, "Grace", (0, 0, 0), (895, 50))
                         player2 = createSysFont("Arial", 20, "John", (0, 0, 0), (58, 50))
                     screen.blits((player0,player1,player2))
-
                 # current player hint
                 if basic.actionType != aType.START or basic.actionType != aType.SHUFFLE:
                     renderCurrentPlayerHint(screen,img,basic.currentPlayer)
-
 
                 if basic.actionType == aType.START:
                     if soundOn:
@@ -205,20 +203,27 @@ class GUI:
                     basic.actionType = aType.SHUFFLE
 
                 # deck init
-                if len(self.game_status) > 0:
-                    fontCardNum = createSysFont("Arial", 20, f"Remaining cards: {len(self.game_status['deck'])}",
-                                           (0, 0, 0), (300, 240), True)
-                    screen.blit(fontCardNum[0],fontCardNum[1])
+                if basic.hasWin:
+                    basic.totalCardNum = 80
+                else:
+                    if len(self.game_status) > 0:
+                        basic.totalCardNum = len(self.game_status['deck'])
+                fontCardNum = createSysFont("Arial", 20, f"Remaining cards: {basic.totalCardNum}",
+                                            (0, 0, 0), (300, 240), True)
+                screen.blit(fontCardNum[0], fontCardNum[1])
                 totalWidth = getCardListWidth(12)
                 for i in range(12):
                     screen.blit(img.cardback, (WINDOW_WIDTH/2-totalWidth/2 + 20 * i, 270))
 
-                # disable all function buttons during AI mode
+                # disable all function buttons, and render computer player message during AI mode
                 if basic.isAI:
                     checkButtClickable(checkButtons, allButtons,"isAI")
+                    if len(self.game_status) > 0 and self.game_status["ai_thoughts_id"] is not None and basic.currentPlayer != 0:
+                        renderAIHint(screen,basic.currentPlayer,self.game_status["ai_thoughts_id"])
 
                 # hand cards init
                 if basic.actionType == aType.INIT:
+                    basic.hasWin = False
                     if self.game_status["action_success"]:
                         (myCards,leftPlayerCards,rightPlayerCards) = renderHandCards(WINDOW_WIDTH,WINDOW_HEIGHT,self.game_status["players"])
                     if basic.init_time == 0:
@@ -385,8 +390,7 @@ class GUI:
 
                 # winner congratulations
                 if (not basic.hasWin) and (len(self.game_status) > 0) and (self.game_status['winner'] is not None):
-                    print("self.game_status---win---", self.game_status)
-                    basic.actionType = aType.SHUFFLE
+                    # print("self.game_status---win---", self.game_status)
                     checkButtClickable(checkButtons, allButtons, "win")
                     screen.blit(img.victory, (WINDOW_WIDTH / 2 - img.victory.get_width() / 2,
                                               WINDOW_HEIGHT / 2 - img.victory.get_height() / 2 - 10))
@@ -401,6 +405,7 @@ class GUI:
                         sound.winner.set_volume(0.3)
                         sound.winner.play()
                         basic.winMusic = False
+                    basic.actionType = aType.SHUFFLE
 
 
             for event in pygame.event.get():
@@ -464,7 +469,7 @@ class GUI:
                                 basic.vs_players.remove("Grace")
                             else:
                                 basic.vs_players.append("Grace")
-                            print(basic.vs_players)
+                            # print(basic.vs_players)
                         if playName2_rect.collidepoint(event.pos) or playName2_rect.collidepoint(event.pos):
                             if soundOn:
                                 sound.click.play()
@@ -472,7 +477,7 @@ class GUI:
                                 basic.vs_players.remove("John")
                             else:
                                 basic.vs_players.append("John")
-                            print(basic.vs_players)
+                            # print(basic.vs_players)
                         # toggle difficulty
                         if arrowLeft_rect.collidepoint(event.pos):
                             if soundOn:
@@ -528,19 +533,18 @@ class GUI:
                                         stealButtArr[0].clickable = False
                                     basic.actionType = aType.SELECT_PLAYER
                         # my card click
-                        if not basic.hasWin:
-                            myCardsLength = len(basic.allHandCard[0]["surfaces"])
-                            for i in range(myCardsLength):
-                                item_surface = basic.allHandCard[0]["surfaces"][i]
-                                item_card = basic.allHandCard[0]["cards"][i]
-                                itemWidth = 85 if i == myCardsLength-1 else 20
-                                itemRect = item_surface[0].get_rect(topleft=item_surface[1], width=itemWidth)
-                                if itemRect.collidepoint(event.pos):
-                                    if basic.actionType == aType.SELECT_ACTION or basic.actionType == aType.SELECT_DISCARD:
-                                        basic.drawnDiscard_surface.add(item_surface)
-                                        basic.drawnDiscard_card.add(item_card)
-                                        checkButtClickable(checkButtons,allButtons,"select_discard")
-                                        basic.actionType = aType.SELECT_DISCARD
+                        myCardsLength = len(basic.allHandCard[0]["surfaces"])
+                        for i in range(myCardsLength):
+                            item_surface = basic.allHandCard[0]["surfaces"][i]
+                            item_card = basic.allHandCard[0]["cards"][i]
+                            itemWidth = 85 if i == myCardsLength-1 else 20
+                            itemRect = item_surface[0].get_rect(topleft=item_surface[1], width=itemWidth)
+                            if itemRect.collidepoint(event.pos):
+                                if basic.actionType == aType.SELECT_ACTION or basic.actionType == aType.SELECT_DISCARD:
+                                    basic.drawnDiscard_surface.add(item_surface)
+                                    basic.drawnDiscard_card.add(item_card)
+                                    checkButtClickable(checkButtons,allButtons,"select_discard")
+                                    basic.actionType = aType.SELECT_DISCARD
                         # discard my card
                         if discardButt.rect.collidepoint(event.pos) and discardButt.clickable:
                             if soundOn:
@@ -568,14 +572,17 @@ class GUI:
                             basic.hasWin = True
                             self.nottygame.end_game()
                             self.nottygame.start_game()
-                            pygame.mixer.music.play(-1)
+                            if musicOn:
+                                pygame.mixer.music.play(-1)
+                            basic.actionType = aType.START
                         if homeButt.rect.collidepoint(event.pos) and homeButt.clickable:
                             if soundOn:
                                 sound.click.play()
                             reset(basic)
                             basic.hasWin = True
                             self.nottygame.end_game()
-                            pygame.mixer.music.play(-1)
+                            if musicOn:
+                                pygame.mixer.music.play(-1)
                             basic.play_page = "HOME"
 
 

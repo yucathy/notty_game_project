@@ -6,6 +6,7 @@ class BasicComponent(object):
         self.vs_players = ["You","Grace"]
         self.difficulty = {0: "easy", 1: "medium", 2: "hard"}
         self.currentDifficulty = 0
+        self.totalCardNum = 80
         self.actionType = "start"
         self.currentPlayer = 0  # 0: you, 1: left player, 2: right player
         self.selectPlayer = 0  # choose a player you want to steal(player 1 or 2)
@@ -93,7 +94,14 @@ class Image(object):
         self.arrow_left = pygame.image.load("newimages/arrow_left.png")
         self.arrow_right = pygame.image.load("newimages/arrow_right.png")
         self.rulepage = pygame.image.load("newimages/rulepage.png")
-        self.border = pygame.image.load("newimages/border.png")
+        # self.aiHint_1_0 = pygame.image.load("newimages/aiHint_1_0.png")
+        # self.aiHint_1_1 = pygame.image.load("newimages/aiHint_1_1.png")
+        # self.aiHint_1_2 = pygame.image.load("newimages/aiHint_1_2.png")
+        # self.aiHint_1_3 = pygame.image.load("newimages/aiHint_1_3.png")
+        # self.aiHint_2_0 = pygame.image.load("newimages/aiHint_2_0.png")
+        # self.aiHint_2_1 = pygame.image.load("newimages/aiHint_2_1.png")
+        # self.aiHint_2_2 = pygame.image.load("newimages/aiHint_2_2.png")
+        # self.aiHint_2_3 = pygame.image.load("newimages/aiHint_2_3.png")
 
 
 class Sound(object):

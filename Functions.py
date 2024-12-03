@@ -1,6 +1,7 @@
 import pygame
 
 def reset(basic):
+    basic.totalCardNum = 80
     basic.actionType = "start"
     basic.currentPlayer = 0  # 0: you, 1: left player, 2: right player
     basic.selectPlayer = 0  # choose a player you want to steal(player 1 or 2)
@@ -18,7 +19,6 @@ def reset(basic):
     }
     basic.currentRound = 1  # current round number
     basic.isAI = False
-    basic.hasWin = False
     basic.winMusic = True
     basic.showHomeHint = False
     basic.init_time = 0
@@ -68,12 +68,12 @@ def renderHandCards(w,h,playerList):
         totalWidth = getCardListWidth(handLength)
         for i in range(handLength):
             mycardImg = pygame.image.load("./newimages/" + str(me["handset"][i]).lower().replace(" ", "") + ".jpg")
-            imgPos = (w / 2 - totalWidth / 2 + 20 * i, 560)
+            imgPos = (w / 2 - totalWidth / 2 + 20 * i, 565)
             myCards.append(((mycardImg, imgPos),me["handset"][i]))
         # totalWidth = getCardListWidth(20)
         # for i in range(20):
-        #     mycardImg = pygame.image.load("./images/" + str(me["handset"][0]).lower().replace(" ", "") + ".png")
-        #     imgPos = (w / 2 - totalWidth / 2 + 20 * i, 560)
+        #     mycardImg = pygame.image.load("./newimages/" + str(me["handset"][0]).lower().replace(" ", "") + ".jpg")
+        #     imgPos = (w / 2 - totalWidth / 2 + 20 * i, 565)
         #     myCards.append(((mycardImg, imgPos), me["handset"][0]))
     if len(leftPlayer) > 0:
         handLength = len(leftPlayer["handset"])
@@ -82,14 +82,14 @@ def renderHandCards(w,h,playerList):
             leftCardImg = pygame.image.load(
                 "./newimages/" + str(leftPlayer["handset"][i]).lower().replace(" ", "") + ".jpg")
             rotatedImg = pygame.transform.rotate(leftCardImg, 270)
-            imgPos = (25, h / 2 - totalWidth / 2 + 15 + 20 * i)
+            imgPos = (20, h / 2 - totalWidth / 2 + 15 + 20 * i)
             leftPlayerCards.append(((rotatedImg, imgPos),leftPlayer["handset"][i]))
         # totalWidth = getCardListWidth(20)
         # for i in range(20):
         #     leftCardImg = pygame.image.load(
-        #         "./images/" + str(leftPlayer["handset"][0]).lower().replace(" ", "") + ".png")
+        #         "./newimages/" + str(leftPlayer["handset"][0]).lower().replace(" ", "") + ".jpg")
         #     rotatedImg = pygame.transform.rotate(leftCardImg, 270)
-        #     imgPos = (25, h / 2 - totalWidth / 2 + 20 + 20 * i)
+        #     imgPos = (20, h / 2 - totalWidth / 2 + 20 + 20 * i)
         #     leftPlayerCards.append(((rotatedImg, imgPos), leftPlayer["handset"][0]))
     if len(rightPlayer) > 0:
         handLength = len(rightPlayer["handset"])
@@ -98,14 +98,14 @@ def renderHandCards(w,h,playerList):
             rightCardImg = pygame.image.load(
                 "./newimages/" + str(rightPlayer["handset"][i]).lower().replace(" ", "") + ".jpg")
             rotatedImg = pygame.transform.rotate(rightCardImg, 90)
-            imgPos = (858, h / 2 + totalWidth / 2 + 15 - rotatedImg.get_height() - 20 * i)
+            imgPos = (863, h / 2 + totalWidth / 2 + 15 - rotatedImg.get_height() - 20 * i)
             rightPlayerCards.append(((rotatedImg, imgPos),rightPlayer["handset"][i]))
         # totalWidth = getCardListWidth(20)
         # for i in range(20):
         #     rightCardImg = pygame.image.load(
-        #         "./images/" + str(rightPlayer["handset"][0]).lower().replace(" ", "") + ".png")
+        #         "./newimages/" + str(rightPlayer["handset"][0]).lower().replace(" ", "") + ".jpg")
         #     rotatedImg = pygame.transform.rotate(rightCardImg, 90)
-        #     imgPos = (858, h / 2 + totalWidth / 2 + 20 - rotatedImg.get_height() - 20 * i)
+        #     imgPos = (863, h / 2 + totalWidth / 2 + 20 - rotatedImg.get_height() - 20 * i)
         #     rightPlayerCards.append(((rotatedImg, imgPos), rightPlayer["handset"][0]))
     return myCards,leftPlayerCards,rightPlayerCards
 
@@ -165,11 +165,19 @@ def renderMessage(screen,w,basic,type,turn=1,currentPlayer=0,cards=[],targetPlay
     pos = (w/2-text_width/2, 35)
     screen.blit(text_surface, pos)
 
+def renderAIHint(screen,currentPlayer,messageId):
+    aiHintImg = pygame.image.load("./newimages/aiHint_" + str(currentPlayer) + "_" + str(messageId) + ".png")
+    if currentPlayer == 1:
+        pos = (140, 70)
+    elif currentPlayer == 2:
+        pos = (740, 70)
+    screen.blit(aiHintImg, pos)
+
 def renderCurrentPlayerHint(screen,img,currentPlayer):
     pos = {
         0: (187,540),
-        1: (115,50),
-        2: (845,50),
+        1: (5,80),
+        2: (945,80),
     }
     screen.blit(img.hint,pos[currentPlayer])
 
@@ -179,7 +187,6 @@ def renderRules(screen):
     fontRect = fontObj.get_rect()
     fontRect.topleft = (30,30)
     screen.blit(fontObj,fontRect)
-
 
 def doAIAction(basic, aType, currentAction):
     if currentAction == 'draw':
