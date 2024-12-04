@@ -181,13 +181,6 @@ def renderCurrentPlayerHint(screen,img,currentPlayer):
     }
     screen.blit(img.hint,pos[currentPlayer])
 
-def renderRules(screen):
-    rulesText = "123"
-    fontObj = pygame.font.SysFont("Arial", 20).render(rulesText, True, (0,0,0))
-    fontRect = fontObj.get_rect()
-    fontRect.topleft = (30,30)
-    screen.blit(fontObj,fontRect)
-
 def doAIAction(basic, aType, currentAction):
     if currentAction == 'draw':
         basic.actionType = aType.SHOW
