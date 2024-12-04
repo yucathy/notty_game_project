@@ -79,7 +79,6 @@ class NottyGame:
         - player_name
         - computer_level
         '''
-
         assert type(player_count) != 'int', "player_count type should be int."
         assert type(player_name) != 'list', "player_name type should be a list."
         assert type(computer_level) != str, "computer_level type should be ComputerLevel."
@@ -90,12 +89,14 @@ class NottyGame:
 
         self.game_ai_level = computer_level
 
-        print(player_count, player_name, computer_level)
+        print("set up info:", player_count, player_name, computer_level)
 
     def create_card(self, colour: str, number: int) -> Card:
+        '''build a card object'''
         return Card(colour, number)
 
     def send_action(self, action: GameActions, action_user_id: int = None, action_info = None):
+        '''get info from gui.'''
         self.action_queue.put([action, action_user_id, action_info])
 
     def start_game(self):
@@ -110,6 +111,7 @@ class NottyGame:
         self.__initialize_state()
 
     def __update_status(self, user_action, action_success, error_info, ai_thoughts_id, active_status, next_player):
+        """update game status"""
         self.game_status["deck"] = self.deck.cards
         self.game_status["type"] = user_action
         self.game_status["action_success"] = action_success
@@ -125,10 +127,10 @@ class NottyGame:
         self.game_status["players"] = player_list
         self.game_status['next_player'] = next_player
         self.game_status['error_info'] = error_info
-
         self.game_status['ai_thoughts_id'] = ai_thoughts_id
 
     def __process_turns(self):
+        '''game logit'''
         while self.running:
             try:
                 # get user action
@@ -139,8 +141,6 @@ class NottyGame:
                 if type(user_action_with_info[2]) != list or not user_action_with_info[2]:
                     user_info = user_action_with_info[2]
                 else:
-                    print(user_action_with_info[2])
-                    print("^^^^^^^^^")
                     if type(user_action_with_info[2][0]) != Card:
                         user_info, ai_thoughts_id = user_action_with_info[2]
                     else:
@@ -253,15 +253,12 @@ class NottyGame:
 
     @staticmethod
     def _str_to_card(card_str):
-        """
-        字符串转Card对象
-        :param card_str: 如 "red 3" 的卡牌字符串
-        :return: Card 对象
-        """
+        """string to card object"""
         color, number = card_str.split()
         return Card(color=color, number=int(number))
 
     def __probability_of_valid_group(self, current_player, target_cardset, card_amount):
+        '''get the probability to form valid cards from a card set'''
         output = []
         target_cardset_str = {f"{card.color} {card.number}" for card in target_cardset}
         target_counter = Counter(target_cardset_str)
@@ -279,9 +276,6 @@ class NottyGame:
                     valid_group_count += count
                 current_player.hand.pop()
 
-        print(valid_group_count, total_target_cards, valid_group_count / total_target_cards)
-        print(valid_cards)
-        print("wwwww")
         output.append([1, valid_group_count / total_target_cards if total_target_cards > 0 else 0.0])
         if card_amount == 1:
             return output
@@ -339,12 +333,9 @@ class NottyGame:
                 draw_score = draw_scores[2][1]  # draw 3 cards can get the largerst probability
                 draw_card_number = draw_scores[2][0]
 
-        print("-----")
         if draw_score < skip_score:
             draw_score = random.randint(19, 21) * 0.01
             draw_card_number = random.randint(1, 3)
-            print(draw_score)
-        print("----")
 
         for a in steal_scores:
             if len(self.players[a[0]].hand) < 5:
@@ -358,8 +349,7 @@ class NottyGame:
         return [draw_card_number, steal_target, action_scores]
 
     def __ai_take_easy_action(self, current_ai_id):
-        print(self.ai_actions_pool)
-        print("---------------->")
+        print("---------------->", self.ai_actions_pool)
         random_action = random.choice(self.ai_actions_pool)
         if random_action != self.GameActions.DISCARD:
             self.ai_actions_pool.remove(random_action)
@@ -377,7 +367,6 @@ class NottyGame:
                 self.send_action(random_action, current_ai_id, target_idx)
         elif random_action == self.GameActions.DISCARD:
             discarded_cards = list(self.players[current_ai_id].find_largest_valid_group())
-            print(discarded_cards)
             self.send_action(random_action, current_ai_id, discarded_cards)
             if len(discarded_cards) == 0 and len(self.ai_actions_pool) == 2:
                 self.ai_actions_pool.remove(random_action)
@@ -387,17 +376,14 @@ class NottyGame:
     def __ai_take_medium_action(self, current_ai_id):
         if self.GameActions.DISCARD in self.ai_actions_pool:
             self.ai_actions_pool.remove(self.GameActions.DISCARD)
-        else:
-            print("discard not in the pool...")
-            print(self.ai_actions_pool)
+        print(self.ai_actions_pool)
+        print("---------------------")
         discarded_cards = list(self.players[current_ai_id].find_largest_valid_group())
         if discarded_cards:
             self.send_action(self.GameActions.DISCARD, current_ai_id, discarded_cards)
             return
         else:
             draw_card_number, steal_target, action_scores = self.__get_action_and_scrore(current_ai_id)
-            print(action_scores)
-            print(self.ai_actions_pool)
             try:
                 best_action = max(self.ai_actions_pool, key=lambda action: action_scores[action])
                 self.ai_actions_pool.remove(best_action)
@@ -416,6 +402,8 @@ class NottyGame:
     def __ai_take_hard_action(self, current_ai_id):
         if self.GameActions.DISCARD in self.ai_actions_pool:
             self.ai_actions_pool.remove(self.GameActions.DISCARD)
+        print(self.ai_actions_pool)
+        print("---------------------")
         discarded_cards = list(self.players[current_ai_id].find_largest_valid_group())
         if discarded_cards:
             self.send_action(self.GameActions.DISCARD, current_ai_id, discarded_cards)
@@ -437,8 +425,6 @@ class NottyGame:
                 temp.append([draw_card_number, steal_target, best_action, best_score])
 
             best_index, best_one = max(enumerate(temp), key=lambda x: x[1][3])
-            print("the best_index:", best_index)
-            print("current ai id:", current_ai_id)
             if best_index != current_ai_id and len(self.players[best_index].hand) > 1 and \
                     self.GameActions.STEAL in self.ai_actions_pool:
                 best_action = self.GameActions.STEAL
@@ -449,7 +435,6 @@ class NottyGame:
                 steal_target = temp[current_ai_id][1]
                 best_action = temp[current_ai_id][2]
 
-            print("I'm going to remove-->", best_action)
             self.ai_actions_pool.remove(best_action)
 
             if best_action == self.GameActions.DRAW:

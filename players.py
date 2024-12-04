@@ -77,7 +77,7 @@ class Players:
         self.hand.append(card)
         return True
 
-    # 验证卡组是否符合丢弃条件，并更新玩家手牌和牌堆
+    # Validate if the deck meets the discard conditions, and update the player's hand and deck."
     def discard_group(self, group, deck) -> bool:
         if self.is_valid_group(group):
             for card in group:
@@ -91,18 +91,17 @@ class Players:
         else:
             return False
 
-    # 是否是有效组
     def is_valid_group(self, group):
         if len(group) < 3:
             return False
 
         group = sorted(group, key=lambda group: group.number)
 
-        # 同样颜色连续数字
+        # Consecutive numbers of the same color
         if all(card.color == group[0].color for card in group) and \
            all(group[i].number == group[i - 1].number + 1 for i in range(1, len(group))):
             return True
-        # 同样数字不同颜色
+        # Same numbers in different colors
         if all(card.number == group[0].number for card in group) and \
            len(set(card.color for card in group)) == len(group):
             return True
@@ -117,15 +116,15 @@ class Players:
         """
         needed_cards = set()
 
-        # 如果手牌只有一张牌需要特殊处理
+        # If the hand contains only one card, special handling is required.
         if len(self.hand) == 1:
-            # 仅抽一张卡
+            # only draw one card
             if num_cards == 1:
                 return self.find_potential_cards(deck, num_cards)
 
             single_card = self.hand[0]
             if num_cards == 2:
-                # 从deck中找到两张卡，与single_card组成有效组
+                # Find two cards from the deck to form a valid set with the single_card
                 for i, card1 in enumerate(deck.cards):
                     for j, card2 in enumerate(deck.cards):
                         if i != j and card1 != single_card and card2 != single_card:
@@ -134,7 +133,7 @@ class Players:
                                 return [card1, card2]
 
             elif num_cards == 3:
-                # 从deck中找到三张卡，与single_card组成有效组
+                # Find three cards from the deck to form a valid set with the single_card.
                 for i, card1 in enumerate(deck.cards):
                     for j, card2 in enumerate(deck.cards):
                         for k, card3 in enumerate(deck.cards):
@@ -144,7 +143,7 @@ class Players:
                                     return [card1, card2, card3]
 
         else:
-            # 遍历用户手牌的所有组合，找到补充有效组所需的卡牌
+            # Traverse all combinations of the user's hand to find the cards needed to complete a valid set
             for i in range(1, len(self.hand) + 1):
                 for subset in combinations(self.hand, i):
                     potential_group = list(subset)
@@ -155,18 +154,18 @@ class Players:
                                 needed_cards.add(card)
                             potential_group.pop()
 
-        # 从所需的卡牌中选取指定数量的卡牌
+        # Select a specified number of cards from the required cards.
         needed_cards = list(needed_cards)
         if len(needed_cards) >= num_cards:
             return needed_cards[:num_cards]
         else:
-            # 补充不足的部分从随机卡牌中选取
+            # Select the remaining cards from random cards.
             # additional_cards = random.sample(deck.cards, num_cards - len(needed_cards))
-            # 补充不足的部分: 从卡牌中选取与已有手牌中随机一张，相同颜色数字相近 或者 颜色不同数字相同的牌
             additional_cards = self.find_potential_cards(deck, num_cards - len(needed_cards))
             return needed_cards + additional_cards
 
-    # 在deck中找出num_cards张和自己手牌中某一张颜色相同数字相邻，或者颜色不同数字相同的卡牌
+    # Find num_cards cards in the deck that either have the same color and adjacent numbers \
+    # or have different colors but the same number as one of the cards in the player's hand.
     def find_potential_cards(self, deck, num_cards):
         hand_card = self.hand[0]
         color = hand_card.color
@@ -192,19 +191,16 @@ class Players:
         :return: A list containing a valid card to steal, or a random card if no valid group is found.
         """
         for ai_card in ai_hand:
-            print(f'测试！！！！！！！！！！！！！！！！！！1」「」{ai_card}')
-            for combo in combinations(self.hand, 2):  # 获取list1中所有可能的两个元素组合
-                group = list(combo) + [ai_card]  # 组合成一个三元素列表
-                if self.is_valid_group(group):  # 调用is_valid_group方法判断是否有效
-                    print(f'通过了！！！！！！！！！！！！！！！！！！1」「」{ai_card}')
+            for combo in combinations(self.hand, 2):  
+                group = list(combo) + [ai_card]  
+                if self.is_valid_group(group): 
                     return [ai_card]
 
-        # 如果没有符合条件的卡牌，随机返回AI手牌中一张
+        # If no cards meet the conditions, randomly return one card from the AI's hand
         card= random.choice(ai_hand)
-        print(f'~~~~~`没有找到随机返回」{card}')
         return [card]
 
-    # 是否存在有效组
+    # Does a valid set exist?
     def has_valid_group(self, hand=None):
         if hand is None:
             hand = self.hand
@@ -213,7 +209,6 @@ class Players:
                 hand = self.hand + hand
             else:
                 hand = self.hand + [hand]
-        print(f'待测试手-----牌--------{hand}')
         n = len(hand)
         for i in range(n):
             for j in range(i + 3, n + 1):
@@ -224,22 +219,22 @@ class Players:
 
     def find_valid_element(self, other_player, is_valid_group):
         """
-        在list2中寻找一个元素，与list1中的任意两个元素组合后，满足is_valid_group。
+        Find an element in list2 that, when combined with any two elements from list1, satisfies is_valid_group.
 
-        :param list1: 第一个列表，包含多个元素。
-        :param list2: 第二个列表，包含多个元素。
-        :param is_valid_group: 方法，接收一个三元素列表，返回布尔值。
-        :return: 如果找到符合条件的list2元素，返回该元素；否则返回None。
+        :param list1: The first list containing multiple elements.
+        :param list2: The second list containing multiple elements.
+        :param is_valid_group: A function that takes a list of three elements and returns a boolean.
+        :return: If an element from list2 meets the condition, return that element; otherwise, return None.
         """
         for element in other_player.hand:
-            for combo in combinations(self.hand, 2):  # 获取list1中所有可能的两个元素组合
-                group = list(combo) + [element]  # 组合成一个三元素列表
-                if is_valid_group(group):  # 调用is_valid_group方法判断是否有效
-                    return element  # 返回当前list2的元素
-        return None  # 如果没有找到符合条件的元素，则返回None
+            for combo in combinations(self.hand, 2):  
+                group = list(combo) + [element]  
+                if is_valid_group(group):  
+                    return element  
+        return None  
 
-    # 检查玩家手牌是否为空
     def has_empty_hand(self):
+        '''check whether handset is empty'''
         return len(self.hand) == 0
 
 
