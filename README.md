@@ -7,7 +7,7 @@ In the game, players aim to empty their hands by drawing cards from the deck, st
 ### Key Features  
 - **Custom UI**: A visually appealing and user-friendly interface designed by the team.  
 - **Multi-level AI**: Three difficulty levels for AI opponents to test your strategic thinking:  
-  - **Easy Mode**: Human players always draw or steal cards that can form valid sets.  
+  - **Easy Mode**: A victory assistance mechanism is included, ensuring that human players always draw or steal cards that can form valid sets.
   - **Medium Mode**: AI players choose the best actions based on probability analysis.  
   - **Hard Mode**: AI players adopt disruptive strategies, increasing the challenge.  
 - **Global Transparency**: All players’ hands are visible throughout the game, emphasizing strategic planning.  
