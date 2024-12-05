@@ -64,16 +64,21 @@ The first player to empty their hand wins.
     │
     ├── card.py                # Defines the Card class
     ├── deck.py                # Defines the Deck class
-    ├── components.py          # Helper components
-    ├── functions.py           # Game-related utility functions
     ├── players.py             # Defines Actions, ComputerPlayer1, and ComputerPlayer2 classes
     ├── notty_game.py          # Main game logic
     ├── gui.py                 # GUI design and event management
+    ├── components.py          # GUI Helper components
+    ├── functions.py           # GUI-related utility functions
     ├── main.py                # Entry point of the program
     ├── images/                # Game image assets
     ├── sounds/                # Game music/sound assets
-    ├── testCaseDoc/           # Test cases and issue documentation (pending updates)
-    ├── NottyGame Specification # Project specifications (pending updates)
+    ├── attachmentsDOC/        # Other Project-Related Team Members' Contributions
+    │   ├── basicInfo          # Records basic information about the team members and all team meeting notes 
+    │   ├── specification      # Project specifications
+    │   ├── UIMaterial/        # All versions of the UI assets
+    │   ├── AIDesign           # Explains the design philosophy behind the difficulty levels of AI players
+    │   ├── testDoc/           # Detailed test cases and bug list
+    │   └── presentationPPT    # Group Presentation PPT
     ├── requirements.txt       # Project dependencies
     └── README.md              # Project documentation
 
