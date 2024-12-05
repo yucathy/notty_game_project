@@ -2,7 +2,7 @@ import time
 from enum import Enum
 from collections import Counter
 from itertools import combinations
-from Card import Card
+from card import Card
 from deck import Deck
 from players import Players, AIPlayer
 import threading
